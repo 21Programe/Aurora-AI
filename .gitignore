@@ -1,9 +1,20 @@
-# Ambiente Virtual
-venv/
+# Ignorar as pastas de núcleo geradas pelo sistema
+sandbox/
+memoria/
+rag/
+logs/
+aprovados/
 
-# Arquivo de Credenciais (NUNCA SUBIR)
-.env
+# Ignorar Modelos de IA (MUITO PESADOS PARA O GIT)
+*.gguf
+*.bin
+modelos/
 
-# Arquivos temporários do Python
+# Ignorar Bancos de Dados locais
+*.db
+*.sqlite3
+
+# Ignorar arquivos temporários e cache do Python
 __pycache__/
 *.pyc
+.env
