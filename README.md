@@ -1,50 +1,46 @@
-# 🌌 Aurora AI - Assistente Virtual Híbrida
+🌌 AURORA IA - Cyber Security OS
+Orquestrador de Inteligência Artificial Local e Motor de Defesa Cibernética.
 
-![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python&logoColor=white)
-![Gemini](https://img.shields.io/badge/AI-Gemini%202.5-orange?style=for-the-badge&logo=google&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Concluído-success?style=for-the-badge)
+A Aurora é um ecossistema de assistência técnica avançada operando sob a arquitetura MVVM Assíncrona. Projetada para integrar processamento de linguagem natural (LLM) nativo com ferramentas de segurança, o sistema utiliza uma memória vetorial persistente para oferecer respostas precisas baseadas em contextos reais e monitoramento térmico de hardware em tempo real.
 
-> *Uma assistente virtual inteligente capaz de ouvir, falar e processar comandos locais e complexos usando a mais nova tecnologia do Google Gemini.*
+🛠️ Funcionalidades Principais
+Core LLM Nativo (Offline): Execução de modelos quantizados GGUF (Meta Llama 3) via llama_cpp, garantindo total privacidade dos dados sem dependência de APIs externas.
 
----
+Subsistema RAG (Retrieval-Augmented Generation): Motor de busca semântica utilizando FAISS (Facebook AI Similarity Search) e embeddings multilíngues para ingerir e consultar manuais técnicos e documentos PDF.
 
-## 🧠 Sobre o Projeto
+Memória Contextual Longa: Banco de dados SQLite integrado que permite à Aurora "lembrar" interações passadas através de indexação vetorial contínua.
 
-A **Aurora AI** é uma aplicação desenvolvida em Python que atua como uma assistente pessoal híbrida. Ela combina **automação local** (abrir sites, verificar horários) com a **inteligência artificial generativa** (Google Gemini 2.5 Flash) para responder a perguntas complexas, manter conversas naturais e auxiliar em tarefas de tecnologia e segurança da informação.
+Sentinela de Hardware & Auto-Cura: Monitoramento ativo de CPU, RAM (com expurgo automático via EmptyWorkingSet) e telemetria térmica para GPUs NVIDIA (RTX 2060).
 
-O diferencial deste projeto é o seu **Loop Híbrido**, que permite interação tanto por voz (Speech-to-Text) quanto por texto via terminal, garantindo acessibilidade e usabilidade em qualquer ambiente.
+Sandbox de Execução Segura: Ambiente isolado para teste e execução efêmera de scripts Python, protegido por filtros de assinaturas restritas (Watchdog).
 
----
+Orquestrador Red Team: Gerenciamento de tarefas concorrentes via ThreadPoolExecutor para operações de I/O não bloqueantes.
 
-## 🚀 Funcionalidades
+🏗️ Arquitetura Técnica
+O projeto segue o modelo de referência C4 (Nível de Código):
 
-- 🎙️ **Reconhecimento de Voz:** Escuta e transcreve comandos do usuário em tempo real.
-- 🗣️ **Síntese de Fala (TTS):** Responde com voz natural e fluida (em português).
-- 🤖 **Integração com IA:** Conectada ao modelo **Gemini 2.5 Flash** para raciocínio lógico e respostas criativas.
-- ⚡ **Comandos Locais:** Executa ações rápidas no PC sem gastar tokens da API:
-  - Informar horário atual.
-  - Abrir YouTube, Google e Portais Acadêmicos.
-  - Abrir o Portfólio do GitHub.
-- 🛡️ **Segurança:** Gestão de credenciais via variáveis de ambiente (`.env`), protegendo as chaves de API.
-- 🔄 **Modo Híbrido:** Alternância automática entre digitar ou falar.
+Interface: CustomTkinter com escalonamento de DPI blindado.
 
----
+Processamento: Pipeline de ML Clássico (scikit-learn) para classificação de intenções e roteamento semântico.
 
-## 🛠️ Tecnologias Utilizadas
+Persistência: Camada híbrida entre SQL tradicional e vetores FAISS L2.
 
-- **Linguagem:** Python 3.12+
-- **Inteligência Artificial:** Google GenAI SDK (Gemini 2.5)
-- **Áudio (Entrada):** SpeechRecognition
-- **Áudio (Saída):** pyttsx3
-- **Ambiente:** python-dotenv (Gestão de Variáveis)
+🚀 Como Executar
+Requisitos de Sistema: Python 3.10+, GPU NVIDIA (recomendado para aceleração de tensores).
 
----
+Diretório Base: O sistema opera a partir da estrutura em D:\AURORA_CORE.
 
-## 📦 Instalação e Configuração
+Instalação:
 
-Siga os passos abaixo para rodar o projeto na sua máquina:
+Bash
+pip install llama-cpp-python customtkinter psutil scikit-learn numpy pymupdf faiss-cpu sentence-transformers
+Modelo: Posicione o arquivo .gguf na pasta de modelos conforme definido no kernel do sistema.
 
-### 1. Clone o repositório
-```bash
-git clone [https://github.com/21Programe/Aurora-AI.git](https://github.com/21Programe/Aurora-AI.git)
-cd Aurora-AI
+👤 Desenvolvedor
+Diego (21Programe)
+
+Especialista em Segurança da Informação (Uniasselvi).
+
+Certificações Harvard e SENAC.
+
+Foco em Python, Cybersecurity e Automação.
