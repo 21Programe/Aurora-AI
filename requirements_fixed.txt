@@ -1,0 +1,50 @@
+# Dependências do Aurora IA
+# ========================
+# Versões pinadas para reprodutibilidade e segurança
+
+# ====================
+# CORE & IA
+# ====================
+llama-cpp-python==0.3.1          # LLM local (GGUF quantizado)
+sentence-transformers==3.0.0     # Embeddings multilíngues
+scikit-learn==1.5.2              # Pipeline ML + classificação
+numpy==1.26.4                    # Computação vetorial
+faiss-cpu==1.8.0                 # Indexação vetorial FAISS
+
+# ====================
+# GUI & INTERFACE
+# ====================
+customtkinter==5.2.2             # Interface moderna (CustomTkinter)
+Pillow==10.3.0                   # Processamento de imagens
+
+# ====================
+# AUDIO & VOZ
+# ====================
+SpeechRecognition==3.14.5        # Reconhecimento de voz
+PyAudio==0.2.14                  # Captura de áudio
+pyttsx3==2.99                    # Text-to-speech offline
+
+# ====================
+# PROCESSAMENTO DE DOCUMENTOS
+# ====================
+PyMuPDF==1.24.8                  # Parsing de PDF (fitz)
+
+# ====================
+# SISTEMA & MONITORAMENTO
+# ====================
+psutil==6.1.0                    # Monitoramento de recursos (CPU/RAM/GPU)
+python-dotenv==1.0.1             # Carregamento de .env
+
+# ====================
+# APLICAÇÕES & INTEGRAÇÃO
+# ====================
+AppOpener==1.0.5                 # Abrir aplicativos do sistema
+requests==2.32.3                 # HTTP requests
+
+# ====================
+# DESENVOLVIMENTO (opcional)
+# ====================
+# pytest==7.4.4                   # Testes unitários
+# black==24.1.1                   # Formatação de código
+# flake8==7.1.1                   # Linting
+# sphinx==7.2.6                   # Documentação
