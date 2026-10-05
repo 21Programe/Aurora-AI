@@ -200,3 +200,29 @@ def test_policy_decision_includes_risk():
     spec = ToolSpec("web.fetch", "web", lambda: None, category="web", risk=ToolRisk.MEDIUM)
     policy = ToolPolicy(allowed_categories=frozenset({"web"}))
     assert policy.decision(spec) == (True, "authorized_risk_medium")
+
+
+def test_audit_latest_filters_events():
+    from aurora.agent.audit import AgentAuditLog
+
+    audit = AgentAuditLog()
+    audit.record("authorize", "web.fetch", "allowed", category="web", risk="medium")
+    audit.record("execute", "web.fetch", "success")
+    assert audit.latest(tool="web.fetch").action == "execute"
+    assert audit.latest(action="authorize", tool="web.fetch").metadata["risk"] == "medium"
+    assert audit.latest(tool="missing") is None
+
+
+def test_audit_redacts_secret_values_from_multiple_formats():
+    from aurora.agent.audit import AgentAuditLog
+
+    event = AgentAuditLog().record(
+        "test", "demo", "ok",
+        api_key="SUPERSECRET",
+        token="TOKENVALUE",
+        authorization="Bearer ABCDEFG123",
+    )
+    text = str(event.metadata)
+    assert "SUPERSECRET" not in text
+    assert "TOKENVALUE" not in text
+    assert "ABCDEFG123" not in text
