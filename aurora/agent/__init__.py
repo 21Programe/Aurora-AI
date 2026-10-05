@@ -3,5 +3,6 @@
 from aurora.agent.runtime import AuroraAgent
 from aurora.agent.state import AgentState
 from aurora.agent.planner import AgentPlan, AgentPlanner
+from aurora.agent.tool_spec import ToolSpec
 
-__all__ = ["AuroraAgent", "AgentState", "AgentPlan", "AgentPlanner"]
+__all__ = ["AuroraAgent", "AgentState", "AgentPlan", "AgentPlanner", "ToolSpec"]
