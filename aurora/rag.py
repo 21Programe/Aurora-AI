@@ -114,10 +114,7 @@ class RAGSubsystem:
                 "SELECT DISTINCT origem FROM base_conhecimento_rag WHERE source_hash = ?",
                 (source_hash,),
             ).fetchall()
-            cursor = conn.execute(
-                "DELETE FROM base_conhecimento_rag WHERE source_hash = ?",
-                (source_hash,),
-            )
+        deleted = self.database.delete_rag_source(source_hash)
         for (source_name,) in rows:
             candidate = settings.RAG_DIR / Path(source_name).name
             try:
@@ -125,7 +122,7 @@ class RAGSubsystem:
             except OSError:
                 logger.warning("Não foi possível remover a cópia RAG: %s", candidate)
         self.load_index()
-        return cursor.rowcount
+        return deleted
 
     def retrieve_with_metadata(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, object]]:
         if not self.initialized:
