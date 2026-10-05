@@ -25,3 +25,19 @@ def test_agent_requires_unique_tool_names():
         pass
     else:
         raise AssertionError("Ferramentas duplicadas deveriam ser rejeitadas")
+
+
+def test_agent_requires_authorization_before_tool_execution():
+    agent = AuroraAgent(FakeAI())
+    agent.register_tool("demo", lambda **_: "executed")
+
+    try:
+        agent.use_tool("demo")
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("Ferramenta deveria exigir autorização")
+
+    agent.authorize_tools("demo")
+    assert agent.use_tool("demo") == "executed"
+    assert agent.state.mode is AgentMode.IDLE
