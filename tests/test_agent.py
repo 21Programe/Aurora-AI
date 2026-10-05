@@ -123,3 +123,22 @@ def test_agent_requires_confirmation_for_destructive_tool():
         raise AssertionError("ação destrutiva deveria exigir confirmação")
 
     assert agent.use_tool("delete", confirmation_token=agent.confirmation_token()) == "deleted"
+
+
+def test_tool_registry_is_deterministic_and_rejects_duplicates():
+    from aurora.agent.tool_registry import ToolRegistry
+    from aurora.agent.tool_spec import ToolSpec
+
+    registry = ToolRegistry()
+    registry.register_many([
+        ToolSpec("web.fetch", "web", lambda: None, category="web"),
+        ToolSpec("fs.read", "filesystem", lambda: None, category="filesystem"),
+    ])
+    assert registry.names() == ("fs.read", "web.fetch")
+    assert registry.by_category("web")[0].name == "web.fetch"
+    try:
+        registry.register(ToolSpec("fs.read", "duplicado", lambda: None, category="filesystem"))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("registry deveria rejeitar nomes duplicados")
