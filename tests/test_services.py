@@ -48,3 +48,18 @@ def test_persistence_service_builds_llm_history():
         ]
     finally:
         temp_dir.cleanup()
+
+
+
+def test_privacy_service_exports_data_and_cleans_history():
+    from aurora.services import AuroraPrivacyService
+
+    temp_dir, database = make_service()
+    try:
+        service = AuroraPrivacyService(database=database)
+        database.insert("historico", ("mensagem_usuario", "resposta_aurora"), ("u", "a"))
+        exported = service.export_user_data()
+        assert exported["historico"][0]["mensagem_usuario"] == "u"
+        assert service.cleanup_history(0) == 1
+    finally:
+        temp_dir.cleanup()
