@@ -202,6 +202,8 @@ class AuroraGUI(ctk.CTk):
             health_callback=self.orchestrator.cleanup_failed_jobs,
         )
 
+        self.protocol("WM_DELETE_WINDOW", self.shutdown)
+
         self.sidebar = ctk.CTkFrame(self, width=200, corner_radius=0)
         self.sidebar.grid(row=0, column=0, rowspan=2, sticky="nsew")
 
@@ -301,6 +303,20 @@ class AuroraGUI(ctk.CTk):
     def limpar_area_principal(self):
         for widget in self.main_frame.winfo_children():
             widget.destroy()
+
+    def shutdown(self) -> None:
+        """Encerra os subsistemas em ordem segura antes de fechar a GUI."""
+        try:
+            self.sentinel.stop(join_timeout=2)
+        except Exception:
+            logger.exception("Falha ao encerrar o Sentinel.")
+
+        try:
+            self.orchestrator.shutdown(wait=True)
+        except Exception:
+            logger.exception("Falha ao encerrar o orquestrador.")
+
+        self.destroy()
 
     def mostrar_chat(self):
         self.limpar_area_principal()
