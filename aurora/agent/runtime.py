@@ -14,11 +14,12 @@ from aurora.agent.tool_router import ToolRouter
 from aurora.agent.audit import AgentAuditLog
 from aurora.agent.planner import AgentPlanner
 from aurora.agent.tool_spec import ToolSpec
+from aurora.agent.tool_registry import ToolRegistry
 from aurora.agent.context import AgentContext
 
 
 class AuroraAgent:
-    def __init__(self, ai_service: Optional[AuroraAIService] = None, context: Optional[AgentContext] = None) -> None:
+    def __init__(self, ai_service: Optional[AuroraAIService] = None, context: Optional[AgentContext] = None, registry: Optional[ToolRegistry] = None) -> None:
         self.ai_service = ai_service or AuroraAIService()
         self.context = context
         self.state = AgentState()
@@ -27,6 +28,7 @@ class AuroraAgent:
         self.policy = ToolPolicy()
         self.audit = AgentAuditLog()
         self.planner = AgentPlanner()
+        self.registry = registry or ToolRegistry()
 
     def register_tool(self, name: str, tool: object) -> None:
         if name in self.tools:
@@ -35,7 +37,8 @@ class AuroraAgent:
         self.tool_router.register(name, tool)
 
     def register_spec(self, spec: ToolSpec) -> None:
-        """Registra ferramenta mantendo sua categoria para auditoria futura."""
+        """Registra uma especificação no runtime e no catálogo central."""
+        self.registry.register(spec)
         self.register_tool(spec.name, spec.handler)
         if not hasattr(self, "_tool_specs"):
             self._tool_specs: Dict[str, ToolSpec] = {}
