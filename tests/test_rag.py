@@ -35,3 +35,4 @@ def test_rag_delete_source_removes_chunks(tmp_path: Path):
             (source_hash,),
         ).fetchone()[0]
     assert count == 0
+    assert rag.delete_source(source_hash) == 0
