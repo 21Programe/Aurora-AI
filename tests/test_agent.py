@@ -142,3 +142,15 @@ def test_tool_registry_is_deterministic_and_rejects_duplicates():
         pass
     else:
         raise AssertionError("registry deveria rejeitar nomes duplicados")
+
+
+def test_agent_imports_registry_without_granting_permissions(tmp_path):
+    from aurora.agent.bootstrap import build_tool_registry
+
+    registry = build_tool_registry(filesystem_root=tmp_path, web_allowed_hosts=("example.com",))
+    agent = AuroraAgent(FakeAI())
+    agent.register_registry(registry)
+
+    assert agent.registry.names() == registry.names()
+    with pytest.raises(PermissionError):
+        agent.use_tool("filesystem.list")
