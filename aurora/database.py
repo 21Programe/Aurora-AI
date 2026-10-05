@@ -97,6 +97,18 @@ class AuroraDatabase:
             )
             return cursor.rowcount
 
+    def cleanup_history(self, retention_days: int) -> int:
+        """Remove histórico mais antigo que a política de retenção."""
+        if retention_days < 0:
+            raise ValueError("retention_days deve ser >= 0")
+        with self.connect() as conn:
+            cursor = conn.execute(
+                "DELETE FROM historico "
+                "WHERE data_hora < datetime('now', ?)",
+                (f"-{retention_days} days",),
+            )
+            return cursor.rowcount
+
     def fetch_history(self, limit: int = 12) -> list[tuple]:
         """Retorna o histórico recente para montagem do contexto da IA."""
         if limit < 1:
