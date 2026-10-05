@@ -29,3 +29,17 @@ def test_audit_log_clear():
     audit.record("execute", "tool", "success")
     audit.clear()
     assert audit.events == []
+
+
+def test_audit_redacts_obvious_secrets():
+    audit = AgentAuditLog()
+    event = audit.record(
+        "execute",
+        "web",
+        "success",
+        api_key="super-secret-value",
+        authorization="Bearer abc123token",
+    )
+    assert "super-secret-value" not in str(event.metadata)
+    assert "abc123token" not in str(event.metadata)
+    assert "[REDACTED]" in str(event.metadata)
