@@ -15,7 +15,6 @@ import webbrowser
 import speech_recognition as sr
 from datetime import datetime
 import subprocess
-import sqlite3
 import threading
 import time
 import json
@@ -49,7 +48,6 @@ DIRS = {
 for d in DIRS.values():
     os.makedirs(d, exist_ok=True)
 
-DB_PATH = str(settings.DB_PATH)
 
 # ==========================================
 # O pywhatkit foi isolado do boot principal para evitar o congelamento (ping no Google).
