@@ -3,3 +3,6 @@ pytest==8.3.5
 requests==2.32.5
 psutil==7.0.0
 numpy==2.3.3
+
+ruff==0.13.0
+pip-audit==2.9.0
