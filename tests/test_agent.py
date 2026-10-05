@@ -91,3 +91,19 @@ def test_agent_run_cycle_injects_context():
     result = agent.run_cycle("objetivo", [{"role": "user", "content": "oi"}])
     assert result == "fake response"
     assert agent.state.objective == "objetivo"
+
+
+def test_agent_can_authorize_tool_category():
+    from aurora.agent.tool_spec import ToolSpec
+
+    agent = AuroraAgent(FakeAI())
+    agent.register_spec(ToolSpec("privacy-export", "exporta dados", lambda: "ok", category="privacy"))
+    try:
+        agent.use_tool("privacy-export")
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("categoria deveria exigir autorização")
+
+    agent.authorize_categories("privacy")
+    assert agent.use_tool("privacy-export") == "ok"
