@@ -10,6 +10,7 @@ class ToolSpec:
     handler: Callable[..., Any]
     requires_authorization: bool = True
     category: str = "general"
+    destructive: bool = False
 
     def __post_init__(self) -> None:
         if not self.name.strip():
