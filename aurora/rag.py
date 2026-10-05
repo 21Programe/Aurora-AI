@@ -117,8 +117,33 @@ class RAGSubsystem:
         ]
         return "\n---\n".join(blocks)
 
-    def ingest_pdf(
-        self,
+    # Compatibilidade com a API legada durante a migração.
+    def gerar_vetor_embedding(self, texto: str):
+        return self.embed(texto)
+
+    def recuperar_contexto(self, pergunta: str, limiar_top_k: int = 3) -> str:
+        return self.retrieve(pergunta, limiar_top_k)
+
+    def ingerir_pdf(self, caminho_arquivo: str, callback_interface=None) -> int:
+        return self.ingest_pdf(caminho_arquivo, callback_interface)
+
+    @property
+    def indice_faiss(self):
+        return self.index
+
+    @indice_faiss.setter
+    def indice_faiss(self, value):
+        self.index = value
+
+    @property
+    def mapeamento_ids(self):
+        return self.mapping
+
+    @mapeamento_ids.setter
+    def mapeamento_ids(self, value):
+        self.mapping = value
+
+    def         self,
         file_path: str,
         callback: Optional[Callable[[str], None]] = None,
     ) -> int:
