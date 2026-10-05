@@ -1,46 +1,166 @@
-🌌 AURORA IA - Cyber Security OS
-Orquestrador de Inteligência Artificial Local e Motor de Defesa Cibernética.
+# 🌌 Aurora IA — Cyber Security OS
 
-A Aurora é um ecossistema de assistência técnica avançada operando sob a arquitetura MVVM Assíncrona. Projetada para integrar processamento de linguagem natural (LLM) nativo com ferramentas de segurança, o sistema utiliza uma memória vetorial persistente para oferecer respostas precisas baseadas em contextos reais e monitoramento térmico de hardware em tempo real.
+Orquestrador local de IA, RAG, memória contextual e monitoramento de sistema para laboratório de desenvolvimento e segurança.
 
-🛠️ Funcionalidades Principais
-Core LLM Nativo (Offline): Execução de modelos quantizados GGUF (Meta Llama 3) via llama_cpp, garantindo total privacidade dos dados sem dependência de APIs externas.
+> **Status:** em refatoração ativa — foco atual em portabilidade, instalação reproduzível, testes e segurança de configuração.
 
-Subsistema RAG (Retrieval-Augmented Generation): Motor de busca semântica utilizando FAISS (Facebook AI Similarity Search) e embeddings multilíngues para ingerir e consultar manuais técnicos e documentos PDF.
+## Visão geral
 
-Memória Contextual Longa: Banco de dados SQLite integrado que permite à Aurora "lembrar" interações passadas através de indexação vetorial contínua.
+A Aurora IA combina um LLM local com ferramentas de automação, recuperação de conhecimento e observabilidade do ambiente.
 
-Sentinela de Hardware & Auto-Cura: Monitoramento ativo de CPU, RAM (com expurgo automático via EmptyWorkingSet) e telemetria térmica para GPUs NVIDIA (RTX 2060).
+Objetivos principais:
+- assistência técnica e programação;
+- Linux, administração de sistemas e segurança defensiva;
+- RAG sobre documentação e PDFs;
+- memória contextual baseada em SQLite + FAISS;
+- monitoramento de CPU, RAM e GPU;
+- automação de tarefas em ambiente autorizado.
 
-Sandbox de Execução Segura: Ambiente isolado para teste e execução efêmera de scripts Python, protegido por filtros de assinaturas restritas (Watchdog).
+## Arquitetura
 
-Orquestrador Red Team: Gerenciamento de tarefas concorrentes via ThreadPoolExecutor para operações de I/O não bloqueantes.
+```text
+Aurora-AI/
+├── aurora/
+│   ├── __init__.py
+│   ├── config.py       # Configuração centralizada
+│   ├── logger.py       # Logging com rotação
+│   └── sentinel.py     # Monitoramento de recursos
+├── tests/
+│   ├── test_config.py
+│   └── test_sentinel.py
+├── .github/workflows/
+│   └── tests.yml       # CI básico
+├── .env.example        # Modelo sem segredos
+├── requirements.txt
+├── requirements_fixed.txt
+├── requirements-dev.txt
+└── README.md
+```
 
-🏗️ Arquitetura Técnica
-O projeto segue o modelo de referência C4 (Nível de Código):
+O núcleo legado ainda possui componentes no arquivo `aurora.py`. A migração gradual para módulos menores faz parte do roadmap.
 
-Interface: CustomTkinter com escalonamento de DPI blindado.
+## Principais componentes
 
-Processamento: Pipeline de ML Clássico (scikit-learn) para classificação de intenções e roteamento semântico.
+### LLM local
+Suporte a modelos GGUF através de `llama-cpp-python`. O modelo não é versionado no Git devido ao tamanho.
 
-Persistência: Camada híbrida entre SQL tradicional e vetores FAISS L2.
+### RAG
+- FAISS para busca vetorial;
+- Sentence Transformers para embeddings multilíngues;
+- PyMuPDF para leitura de PDFs.
 
-🚀 Como Executar
-Requisitos de Sistema: Python 3.10+, GPU NVIDIA (recomendado para aceleração de tensores).
+### Memória
+SQLite é utilizado para persistência local, enquanto FAISS pode ser utilizado para recuperação semântica.
 
-Diretório Base: O sistema deve usar o diretório raiz do próprio projeto; caminhos locais devem ser configurados por variáveis de ambiente ou caminhos relativos.
+### Sentinel
+O `SystemSentinel` acompanha CPU, RAM, temperatura/utilização da GPU NVIDIA quando `nvidia-smi` está disponível e uso de VRAM.
 
-Instalação:
+### Configuração
+A configuração está centralizada em `aurora/config.py`.
 
-Bash
-pip install llama-cpp-python customtkinter psutil scikit-learn numpy pymupdf faiss-cpu sentence-transformers
-Modelo: Posicione o arquivo .gguf na pasta de modelos conforme definido no kernel do sistema.
+```text
+AURORA_HOME=./aurora_core
+```
 
-👤 Desenvolvedor
-Diego (21Programe)
+## Instalação
 
-Especialista em Segurança da Informação (Uniasselvi).
+### 1. Ambiente virtual
+Windows PowerShell:
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-Certificações Harvard e SENAC.
+Linux:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-Foco em Python, Cybersecurity e Automação.
+### 2. Dependências
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements_fixed.txt
+```
+
+Para desenvolvimento/testes:
+```bash
+pip install -r requirements-dev.txt
+```
+
+> `llama-cpp-python` pode exigir configuração específica de compilação/aceleração dependendo do sistema. O modelo GGUF é instalado separadamente.
+
+### 3. Ambiente
+Copie `.env.example` para `.env` e preencha somente as variáveis necessárias.
+
+**Nunca coloque chaves de API, senhas ou tokens reais no Git.**
+
+### 4. Testes
+```bash
+pytest -q
+```
+
+## Execução
+A arquitetura atual prevê a inicialização da interface através de:
+```bash
+python -m aurora.gui.app
+```
+A migração da aplicação legada para essa estrutura modular ainda está em andamento.
+
+## Segurança
+Este projeto é destinado a laboratórios próprios, ambientes de teste e sistemas para os quais o usuário possui autorização.
+
+O sandbox atual é experimental e não deve ser considerado uma fronteira de segurança completa para execução de código não confiável.
+
+Boas práticas adotadas:
+- segredos fora do código-fonte;
+- `.env` ignorado pelo Git;
+- modelos grandes fora do repositório;
+- diretórios de runtime ignorados;
+- validação de configuração;
+- logging centralizado;
+- testes automatizados básicos.
+
+## Roadmap
+
+### Fase 1 — Fundação
+- [x] Configuração centralizada
+- [x] Paths portáveis
+- [x] Logging centralizado
+- [x] `.gitignore` reforçado
+- [x] Testes iniciais
+- [x] CI básico
+
+### Fase 2 — Arquitetura
+- [ ] Separar o núcleo legado em módulos
+- [ ] Consolidar memória
+- [ ] Consolidar RAG
+- [ ] Isolar sandbox
+- [ ] Padronizar type hints
+- [ ] Aumentar cobertura de testes
+
+### Fase 3 — Qualidade
+- [ ] Instalação reproduzível em Windows/Linux
+- [ ] Auditoria de dependências
+- [ ] Documentação técnica
+- [ ] Benchmark de LLM/RAG
+- [ ] Testes de integração
+
+### Fase 4 — Portfólio
+- [ ] Screenshots da interface
+- [ ] Demonstração em vídeo/GIF
+- [ ] Release versionada
+- [ ] Changelog
+- [ ] Documentação de arquitetura
+
+## Documentação técnica
+O repositório mantém `ANALISE_CODIGO_AURORA.md` e `REFACTORING_ROADMAP.md` com problemas encontrados e decisões planejadas.
+
+## Desenvolvedor
+**Diego — 21Programe**
+
+Foco: Python, IA local, RAG, automação, Linux e Segurança da Informação.
+
+---
+
+**Aurora IA** — projeto experimental de IA local e engenharia de software com foco em privacidade, automação e segurança defensiva.
