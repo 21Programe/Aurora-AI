@@ -5,14 +5,17 @@ from typing import Optional
 
 import numpy as np
 
-from aurora.config import settings
 from aurora.database import AuroraDatabase
 from aurora.logger import logger
 from aurora.rag import RAGSubsystem
 
 
 class ContextMemory:
-    """Armazena interações e recupera lembranças por similaridade semântica."""
+    """Armazena interações e recupera lembranças por similaridade semântica.
+
+    A memória mantém sua própria recuperação sobre a tabela de histórico
+    contextual. O índice do RAG é reservado exclusivamente para documentos.
+    """
 
     def __init__(
         self,
@@ -35,7 +38,6 @@ class ContextMemory:
                 ("texto_interacao", "vetor_json"),
                 (text, json.dumps(vector.tolist())),
             )
-            self.rag.load_index()
             return True
         except Exception:
             logger.exception("Falha ao salvar memória contextual.")
@@ -72,5 +74,5 @@ class ContextMemory:
         return self.retrieve(pergunta, limiar_top_k)
 
     def carregar_indice_memoria_longa(self) -> None:
-        """Mantido para compatibilidade; a memória é consultada diretamente no SQLite."""
+        """Mantido por compatibilidade; não constrói o índice de documentos RAG."""
         self.database.initialize()
