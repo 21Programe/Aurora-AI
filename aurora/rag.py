@@ -40,6 +40,7 @@ class RAGSubsystem:
         self.database.initialize()
         self.index = None
         self.mapping: Dict[int, str] = {}
+        self.metadata: Dict[int, Dict[str, object]] = {}
         self.encoder = None
         self.initialized = False
 
@@ -68,6 +69,7 @@ class RAGSubsystem:
         """Reconstrói o índice a partir do SQLite."""
         self.index = None
         self.mapping = {}
+        self.metadata = {}
 
         if faiss is None:
             self.initialized = True
@@ -75,19 +77,26 @@ class RAGSubsystem:
 
         with self.database.connect() as conn:
             rows = conn.execute(
-                "SELECT id_chunk, conteudo_texto, vetor_json "
+                "SELECT id_chunk, conteudo_texto, vetor_json, origem, source_hash, chunk_index "
                 "FROM base_conhecimento_rag ORDER BY id_chunk"
             ).fetchall()
 
         vectors: List[np.ndarray] = []
-        for row_index, (_, text, vector_json) in enumerate(rows):
+        for row_index, (chunk_id, text, vector_json, origem, source_hash, chunk_index) in enumerate(rows):
             try:
                 vector = np.asarray(json.loads(vector_json), dtype="float32")
             except (TypeError, ValueError, json.JSONDecodeError):
                 continue
             if vector.ndim == 1:
                 vectors.append(vector)
-                self.mapping[len(vectors) - 1] = text
+                position = len(vectors) - 1
+                self.mapping[position] = text
+                self.metadata[position] = {
+                    "chunk_id": chunk_id,
+                    "source": origem,
+                    "source_hash": source_hash,
+                    "chunk_index": chunk_index,
+                }
 
         if vectors:
             matrix = np.vstack(vectors)
@@ -95,6 +104,26 @@ class RAGSubsystem:
             self.index.add(matrix)
 
         self.initialized = True
+
+    def retrieve_with_metadata(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, object]]:
+        if not self.initialized:
+            self.load_index()
+        if self.index is None or self.index.ntotal == 0:
+            return []
+        vector = self.embed(query)
+        if vector is None:
+            return []
+        k = min(int(top_k or settings.RAG_TOP_K), int(self.index.ntotal))
+        distances, indices = self.index.search(np.asarray([vector], dtype="float32"), k)
+        results = []
+        for score, index in zip(distances[0], indices[0]):
+            position = int(index)
+            if position in self.mapping:
+                item = dict(self.metadata.get(position, {}))
+                item["score"] = float(score)
+                item["text"] = self.mapping[position]
+                results.append(item)
+        return results
 
     def retrieve(self, query: str, top_k: Optional[int] = None) -> str:
         if not self.initialized:
@@ -158,6 +187,9 @@ class RAGSubsystem:
         if source.suffix.lower() != ".pdf":
             raise ValueError("A ingestão atual aceita somente arquivos PDF.")
 
+        max_bytes = settings.RAG_MAX_FILE_BYTES
+        if source.stat().st_size > max_bytes:
+            raise ValueError(f"PDF excede o limite de {max_bytes} bytes.")
         source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
         with self.database.connect() as conn:
             existing = conn.execute(
@@ -173,6 +205,8 @@ class RAGSubsystem:
         shutil.copy2(source, destination)
 
         with fitz.open(destination) as document:
+            if document.page_count > settings.RAG_MAX_PAGES:
+                raise ValueError(f"PDF excede o limite de {settings.RAG_MAX_PAGES} páginas.")
             raw_text = "\n".join(page.get_text("text") for page in document)
 
         chunks: List[str] = []
