@@ -27,5 +27,9 @@ jobs:
       - name: Compile Python sources
         run: python -m compileall -q aurora tests
 
+      - name: Lint
+        run: ruff check aurora tests
+      - name: Dependency audit
+        run: pip-audit -r requirements-dev.txt
       - name: Run tests
         run: pytest -q tests
