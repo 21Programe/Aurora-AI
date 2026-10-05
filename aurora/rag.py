@@ -143,7 +143,7 @@ class RAGSubsystem:
     def mapeamento_ids(self, value):
         self.mapping = value
 
-    def         self,
+    def ingest_pdf(self,
         file_path: str,
         callback: Optional[Callable[[str], None]] = None,
     ) -> int:
@@ -159,8 +159,8 @@ class RAGSubsystem:
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
 
-        document = fitz.open(destination)
-        raw_text = "\n".join(page.get_text("text") for page in document)
+        with fitz.open(destination) as document:
+            raw_text = "\n".join(page.get_text("text") for page in document)
 
         chunks: List[str] = []
         current = ""
