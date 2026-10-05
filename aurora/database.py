@@ -77,10 +77,25 @@ class AuroraDatabase:
                 conn.execute("ALTER TABLE base_conhecimento_rag ADD COLUMN chunk_index INTEGER")
 
     def clear_memory(self) -> None:
-        """Apaga somente dados de memória/RAG usando uma whitelist fixa."""
+        """Apaga memória, histórico e metadados RAG do banco.
+
+        Arquivos-fonte copiados pelo RAG devem ser removidos pelo RAGSubsystem,
+        pois esta camada não deve executar exclusões arbitrárias no filesystem.
+        """
         with self.connect() as conn:
             for table in ("historico", "base_conhecimento_rag", "memoria_contexto_longo"):
                 conn.execute(f"DELETE FROM {table}")
+
+    def delete_rag_source(self, source_hash: str) -> int:
+        """Remove todos os chunks associados a um SHA-256 de fonte."""
+        if not source_hash or len(source_hash) != 64:
+            raise ValueError("source_hash deve ser um SHA-256 hexadecimal.")
+        with self.connect() as conn:
+            cursor = conn.execute(
+                "DELETE FROM base_conhecimento_rag WHERE source_hash = ?",
+                (source_hash,),
+            )
+            return cursor.rowcount
 
     def fetch_history(self, limit: int = 12) -> list[tuple]:
         """Retorna o histórico recente para montagem do contexto da IA."""
