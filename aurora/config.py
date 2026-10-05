@@ -81,6 +81,9 @@ class Settings:
     RAG_ENCODER_MODEL: str = os.getenv("RAG_ENCODER_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
     RAG_TOP_K: int = int(os.getenv("RAG_TOP_K", "3"))
     RAG_CHUNK_SIZE: int = int(os.getenv("RAG_CHUNK_SIZE", "1000"))
+    # Privacidade: retenção e limite de memória contextual
+    MEMORY_RETENTION_DAYS: int = int(os.getenv("MEMORY_RETENTION_DAYS", "90"))
+    MEMORY_MAX_TEXT_CHARS: int = int(os.getenv("MEMORY_MAX_TEXT_CHARS", "12000"))
     
     # Cache de modelos embeddings
     RAG_CACHE_DIR: Path = MODEL_DIR / "embeddings_cache"
@@ -183,6 +186,10 @@ class Settings:
             errors.append(f"RAG_TOP_K deve ser >= 1: {cls.RAG_TOP_K}")
         if cls.RAG_CHUNK_SIZE < 100:
             errors.append(f"RAG_CHUNK_SIZE deve ser >= 100: {cls.RAG_CHUNK_SIZE}")
+        if cls.MEMORY_RETENTION_DAYS < 0:
+            errors.append(f"MEMORY_RETENTION_DAYS deve ser >= 0: {cls.MEMORY_RETENTION_DAYS}")
+        if cls.MEMORY_MAX_TEXT_CHARS < 100:
+            errors.append(f"MEMORY_MAX_TEXT_CHARS deve ser >= 100: {cls.MEMORY_MAX_TEXT_CHARS}")
         if cls.MONITOR_INTERVAL < 1:
             errors.append(f"MONITOR_INTERVAL deve ser >= 1: {cls.MONITOR_INTERVAL}")
         
