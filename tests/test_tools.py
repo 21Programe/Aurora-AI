@@ -28,3 +28,15 @@ def test_web_tool_validates_scheme_and_host():
         tool.fetch_text("file:///etc/passwd")
     with pytest.raises(PermissionError):
         tool.fetch_text("https://not-authorized.example/")
+
+
+def test_web_tool_rejects_private_host_without_allowlist():
+    tool = WebTool()
+    with pytest.raises(PermissionError):
+        tool.fetch_text("http://127.0.0.1:8000/")
+
+
+def test_web_tool_rejects_invalid_max_chars():
+    tool = WebTool(allowed_hosts=("example.com",))
+    with pytest.raises(ValueError):
+        tool.fetch_text("https://example.com/", max_chars=0)
