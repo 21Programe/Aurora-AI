@@ -137,6 +137,7 @@ class AuroraAgent:
                         "denied",
                         category=spec.category,
                         destructive=spec.destructive,
+                        risk=spec.risk.value,
                         reason=reason,
                     )
                     raise PermissionError(f"ferramenta não autorizada: {name}")
@@ -146,6 +147,7 @@ class AuroraAgent:
                     "allowed",
                     category=spec.category,
                     destructive=spec.destructive,
+                    risk=spec.risk.value,
                     reason=reason,
                 )
                 if spec.destructive and confirmation_token != self.policy.confirmation_token:
@@ -155,6 +157,7 @@ class AuroraAgent:
                         "denied",
                         category=spec.category,
                         destructive=True,
+                        risk=spec.risk.value,
                         reason="confirmation_required",
                     )
                     raise PermissionError(f"confirmação explícita exigida para: {name}")
