@@ -41,3 +41,14 @@ def test_agent_requires_authorization_before_tool_execution():
     agent.authorize_tools("demo")
     assert agent.use_tool("demo") == "executed"
     assert agent.state.mode is AgentMode.IDLE
+
+
+def test_agent_registers_tool_spec_and_audits_execution():
+    from aurora.agent.tool_spec import ToolSpec
+
+    agent = AuroraAgent(FakeAI())
+    agent.register_spec(ToolSpec("echo", "eco", lambda value: value))
+    agent.authorize_tools("echo")
+    assert agent.use_tool("echo", value="ok") == "ok"
+    assert agent.audit.events[-1].tool == "echo"
+    assert agent.audit.events[-1].status == "success"
