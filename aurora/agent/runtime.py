@@ -35,7 +35,11 @@ class AuroraAgent:
         self.tool_router.register(name, tool)
 
     def register_spec(self, spec: ToolSpec) -> None:
+        """Registra ferramenta mantendo sua categoria para auditoria futura."""
         self.register_tool(spec.name, spec.handler)
+        if not hasattr(self, "_tool_specs"):
+            self._tool_specs: Dict[str, ToolSpec] = {}
+        self._tool_specs[spec.name] = spec
 
     def think(self, messages: List[Dict[str, str]]) -> str:
         self.state.set_mode(AgentMode.THINKING)
