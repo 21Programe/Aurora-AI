@@ -13,6 +13,7 @@ from aurora.agent.permissions import ToolPolicy
 from aurora.agent.tool_router import ToolRouter
 from aurora.agent.audit import AgentAuditLog
 from aurora.agent.planner import AgentPlanner
+from aurora.agent.tool_spec import ToolSpec
 
 
 class AuroraAgent:
@@ -26,12 +27,13 @@ class AuroraAgent:
         self.planner = AgentPlanner()
 
     def register_tool(self, name: str, tool: object) -> None:
-        if not name or not name.strip():
-            raise ValueError("nome da ferramenta é obrigatório")
         if name in self.tools:
             raise ValueError(f"ferramenta já registrada: {name}")
         self.tools[name] = tool
         self.tool_router.register(name, tool)
+
+    def register_spec(self, spec: ToolSpec) -> None:
+        self.register_tool(spec.name, spec.handler)
 
     def think(self, messages: List[Dict[str, str]]) -> str:
         self.state.set_mode(AgentMode.THINKING)
