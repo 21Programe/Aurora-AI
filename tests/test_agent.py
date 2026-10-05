@@ -154,3 +154,30 @@ def test_agent_imports_registry_without_granting_permissions(tmp_path):
     assert agent.registry.names() == registry.names()
     with pytest.raises(PermissionError):
         agent.use_tool("filesystem.list")
+
+
+def test_agent_audits_denied_authorization_with_reason():
+    from aurora.agent.tool_spec import ToolSpec
+
+    agent = AuroraAgent(FakeAI())
+    agent.register_spec(ToolSpec("private", "privada", lambda: "ok", category="filesystem"))
+    with pytest.raises(PermissionError):
+        agent.use_tool("private")
+    event = agent.audit.events[-1]
+    assert event.action == "authorize"
+    assert event.status == "denied"
+    assert event.metadata["reason"] == "tool_or_category_not_authorized"
+
+
+def test_agent_audits_confirmation_denial():
+    from aurora.agent.tool_spec import ToolSpec
+
+    agent = AuroraAgent(FakeAI())
+    agent.register_spec(ToolSpec("delete", "remove", lambda: "deleted", category="privacy", destructive=True))
+    agent.authorize_categories("privacy")
+    with pytest.raises(PermissionError):
+        agent.use_tool("delete")
+    event = agent.audit.events[-1]
+    assert event.action == "confirm"
+    assert event.status == "denied"
+    assert event.metadata["reason"] == "confirmation_required"
