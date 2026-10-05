@@ -68,6 +68,13 @@ class AuroraDatabase:
                 );
                 """
             )
+            columns = {
+                row[1] for row in conn.execute("PRAGMA table_info(base_conhecimento_rag)")
+            }
+            if "source_hash" not in columns:
+                conn.execute("ALTER TABLE base_conhecimento_rag ADD COLUMN source_hash TEXT")
+            if "chunk_index" not in columns:
+                conn.execute("ALTER TABLE base_conhecimento_rag ADD COLUMN chunk_index INTEGER")
 
     def clear_memory(self) -> None:
         """Apaga somente dados de memória/RAG usando uma whitelist fixa."""
