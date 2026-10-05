@@ -57,7 +57,7 @@ class Settings:
     # LLM (Modelo de Linguagem)
     # ========================
     
-    LLM_MODEL_NAME: str = "Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"
+    LLM_MODEL_NAME: str = os.getenv("LLM_MODEL_NAME", "Meta-Llama-3-8B-Instruct-Q4_K_M.gguf")
     LLM_MODEL_PATH: Path = MODEL_DIR / LLM_MODEL_NAME
     
     # Parâmetros de GPU
@@ -78,7 +78,7 @@ class Settings:
     # RAG (Retrieval-Augmented Generation)
     # ========================
     
-    RAG_ENCODER_MODEL: str = "paraphrase-multilingual-MiniLM-L12-v2"
+    RAG_ENCODER_MODEL: str = os.getenv("RAG_ENCODER_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
     RAG_TOP_K: int = int(os.getenv("RAG_TOP_K", "3"))
     RAG_CHUNK_SIZE: int = int(os.getenv("RAG_CHUNK_SIZE", "1000"))
     
