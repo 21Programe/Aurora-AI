@@ -32,8 +32,8 @@ class FilesystemTool:
 
 
 def filesystem_tool_specs(tool: FilesystemTool) -> tuple:
-    from aurora.agent.tool_spec import ToolSpec
+    from aurora.agent.tool_spec import ToolSpec, ToolRisk
     return (
-        ToolSpec("filesystem.list", "lista arquivos dentro da raiz autorizada", tool.list_files, category="filesystem"),
-        ToolSpec("filesystem.read", "lê texto dentro da raiz autorizada", tool.read_text, category="filesystem"),
+        ToolSpec("filesystem.list", "lista arquivos dentro da raiz autorizada", tool.list_files, category="filesystem", risk=ToolRisk.MEDIUM),
+        ToolSpec("filesystem.read", "lê texto dentro da raiz autorizada", tool.read_text, category="filesystem", risk=ToolRisk.MEDIUM),
     )
