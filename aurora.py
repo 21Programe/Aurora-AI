@@ -34,6 +34,7 @@ from aurora.rag import RAGSubsystem
 from aurora.memory import ContextMemory
 from aurora.llm import LocalLLM
 from aurora.sentinel import SystemSentinel as ModularSystemSentinel
+from aurora.orchestrator import RedTeamTaskOrchestrator
 
 BASE_DIR = str(settings.BASE_DIR)
 DIRS = {
@@ -88,45 +89,6 @@ def consultar_ia_local(mensagens):
 # ==========================================
 # 0.5 ORQUESTRADOR TÁTICO & SENTINELA (AUTO-CURA)
 # ==========================================
-class RedTeamTaskOrchestrator:
-    def __init__(self, message_queue, max_workers=10):
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_workers)
-        self.message_queue = message_queue
-        self.active_jobs = {}
-        self.job_counter = 0
-
-    def submit_job(self, job_name, fn, *args, **kwargs):
-        self.job_counter += 1
-        job_id = f"PID_{self.job_counter:04X}"
-        future = self.executor.submit(self._execution_wrapper, job_id, job_name, fn, *args, **kwargs)
-        self.active_jobs[job_id] = {"name": job_name, "future": future, "status": "RUNNING"}
-        return job_id
-
-    def _execution_wrapper(self, job_id, job_name, fn, *args, **kwargs):
-        try:
-            result = fn(*args, **kwargs)
-            self.active_jobs[job_id]["status"] = "COMPLETED"
-            return result
-        except Exception as e:
-            self.active_jobs[job_id]["status"] = "FAILED"
-            error_msg = f"Falha catastrófica na thread {job_id} ({job_name}): {e}"
-            self.message_queue.put(("⚠️ ALERTA DE SUBSISTEMA", error_msg))
-
-    def cleanup_failed_jobs(self):
-        """Remove jobs encerrados com falha do registro ativo."""
-        failed_jobs = [
-            job_id
-            for job_id, info in self.active_jobs.items()
-            if info.get("status") == "FAILED"
-        ]
-        for job_id in failed_jobs:
-            self.active_jobs.pop(job_id, None)
-
-    def shutdown(self):
-        self.executor.shutdown(wait=False)
-
-
-
 # ==========================================
 # 0.6 SANDBOX DE TESTE DE CÓDIGO
 # ==========================================
