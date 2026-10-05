@@ -32,3 +32,20 @@ def test_memory_retrieves_semantically_closest_interaction(tmp_path: Path):
 
     assert "Python" in result
     assert "redes" not in result
+
+
+def test_memory_rejects_invalid_top_k(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "memory.db")
+    memory = ContextMemory(database=db, rag=FakeRAG())
+    try:
+        memory.retrieve("Python", top_k=0)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("top_k inválido deveria ser rejeitado")
+
+
+def test_memory_empty_question_returns_empty(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "memory.db")
+    memory = ContextMemory(database=db, rag=FakeRAG())
+    assert memory.retrieve("   ") == ""
