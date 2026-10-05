@@ -1,5 +1,6 @@
 from aurora.agent.runtime import AuroraAgent
 from aurora.agent.state import AgentMode
+import pytest
 
 
 class FakeAI:
@@ -181,3 +182,21 @@ def test_agent_audits_confirmation_denial():
     assert event.action == "confirm"
     assert event.status == "denied"
     assert event.metadata["reason"] == "confirmation_required"
+
+
+def test_tool_spec_requires_meaningful_risk_for_destructive_actions():
+    from aurora.agent.tool_spec import ToolRisk, ToolSpec
+
+    spec = ToolSpec("delete", "remove", lambda: None, destructive=True, risk=ToolRisk.HIGH)
+    assert spec.risk is ToolRisk.HIGH
+    with pytest.raises(ValueError):
+        ToolSpec("unsafe", "remove", lambda: None, destructive=True)
+
+
+def test_policy_decision_includes_risk():
+    from aurora.agent.permissions import ToolPolicy
+    from aurora.agent.tool_spec import ToolRisk, ToolSpec
+
+    spec = ToolSpec("web.fetch", "web", lambda: None, category="web", risk=ToolRisk.MEDIUM)
+    policy = ToolPolicy(allowed_categories=frozenset({"web"}))
+    assert policy.decision(spec) == (True, "authorized_risk_medium")
