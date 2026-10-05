@@ -164,6 +164,8 @@ class AuroraAgent:
             result = self.tool_router.execute(name, **kwargs)
             self.audit.record("execute", name, "success")
             return result
+        except PermissionError:
+            raise
         except Exception as exc:
             self.audit.record("execute", name, "failed", error=type(exc).__name__)
             raise
