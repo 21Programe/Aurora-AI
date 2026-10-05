@@ -32,7 +32,10 @@ import shutil
 # ==========================================
 # 0.1 CONFIGURAÇÃO DE DIRETÓRIOS E FILE SYSTEM (D:\AURORA_CORE)
 # ==========================================
-BASE_DIR = r"D:\AURORA_CORE"
+from aurora.config import settings
+from aurora.logger import logger
+
+BASE_DIR = str(settings.BASE_DIR)
 DIRS = {
     "sandbox": os.path.join(BASE_DIR, "sandbox"),
     "memoria": os.path.join(BASE_DIR, "memoria"),
@@ -45,7 +48,7 @@ DIRS = {
 for d in DIRS.values():
     os.makedirs(d, exist_ok=True)
 
-DB_PATH = os.path.join(DIRS["memoria"], "aurora_memory.db")
+DB_PATH = str(settings.DB_PATH)
 
 # ==========================================
 # O pywhatkit foi isolado do boot principal para evitar o congelamento (ping no Google).
@@ -87,31 +90,31 @@ INSTRUCAO_SISTEMA = """
 """
 
 llm_lock = threading.Lock()
-caminho_modelo = r"D:\AURORA_CORE\modelos\Meta-Llama-3-8B-Instruct-Q4_K_M.gguf" # <--- ALTERADO AQUI
+caminho_modelo = str(settings.LLM_MODEL_PATH)
 
 try:
     if os.path.exists(caminho_modelo):
         cores_fisicos = psutil.cpu_count(logical=False) or 4
         cerebro_llm = Llama(
             model_path=caminho_modelo,
-            n_gpu_layers=25,
+            n_gpu_layers=settings.LLM_GPU_LAYERS,
             n_threads=cores_fisicos,
-            n_ctx=8192,
-            n_batch=512,
+            n_ctx=settings.LLM_CONTEXT,
+            n_batch=settings.LLM_BATCH_SIZE,
             embedding=True,
             chat_format="llama-3", # <--- O ESCUDO ANTI-PAPAGAIO
             verbose=False,
         )
         modelo_carregado = True
-        print(f"[LLM CORE] Matriz carregada. Threads físicas: {cores_fisicos}. Contexto: 4096.")
+        logger.info(f"[LLM CORE] Matriz carregada. Threads físicas: {cores_fisicos}. Contexto: {settings.LLM_CONTEXT}.")
     else:
         cerebro_llm = None
         modelo_carregado = False
-        print(f"Alerta Arquitetural: Artefato quantizado GGUF ausente: {caminho_modelo}")
+        logger.warning(f"Artefato GGUF ausente: {caminho_modelo}")
 except Exception as erro_de_ligacao:
     cerebro_llm = None
     modelo_carregado = False
-    print(f"Erro na inicialização de kernel: {erro_de_ligacao}")
+    logger.exception(f"Erro na inicialização de kernel: {erro_de_ligacao}")
 
 
 def consultar_ia_local(mensagens):
@@ -123,10 +126,10 @@ def consultar_ia_local(mensagens):
             resposta = cerebro_llm.create_chat_completion(
                 messages=mensagens, 
                 stream=False,
-                temperature=0.6,
-                frequency_penalty=1.2,
-                presence_penalty=1.2,
-                max_tokens=1024
+                temperature=settings.LLM_TEMPERATURE,
+                frequency_penalty=settings.LLM_FREQUENCY_PENALTY,
+                presence_penalty=settings.LLM_PRESENCE_PENALTY,
+                max_tokens=settings.LLM_MAX_TOKENS
             )
             escolhas = resposta.get("choices", [])
             return escolhas[0].get("message", {}).get("content", "").strip() if escolhas else ""
