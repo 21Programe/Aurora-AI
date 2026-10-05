@@ -79,3 +79,33 @@ def test_database_rejects_empty_columns(tmp_path: Path):
         pass
     else:
         raise AssertionError("Inserção sem colunas deveria ser rejeitada")
+
+
+def test_database_history_retention_cleanup(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "test.db")
+    db.initialize()
+    with db.connect() as conn:
+        conn.execute(
+            "INSERT INTO historico (mensagem_usuario, resposta_aurora, data_hora) "
+            "VALUES (?, ?, datetime('now', '-10 days'))",
+            ("antigo", "resposta"),
+        )
+        conn.execute(
+            "INSERT INTO historico (mensagem_usuario, resposta_aurora) VALUES (?, ?)",
+            ("recente", "resposta"),
+        )
+
+    assert db.cleanup_history(7) == 1
+    rows = db.fetch_history(10)
+    assert rows == [("recente", "resposta")]
+
+
+def test_database_history_retention_rejects_negative_days(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "test.db")
+    db.initialize()
+    try:
+        db.cleanup_history(-1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("retenção negativa deveria ser rejeitada")
