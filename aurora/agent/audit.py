@@ -55,5 +55,15 @@ class AgentAuditLog:
             del self.events[: len(self.events) - self.max_events]
         return event
 
+    def latest(self, *, action: str | None = None, tool: str | None = None) -> AuditEvent | None:
+        """Retorna o evento mais recente que corresponde aos filtros."""
+        for event in reversed(self.events):
+            if action is not None and event.action != action:
+                continue
+            if tool is not None and event.tool != tool:
+                continue
+            return event
+        return None
+
     def clear(self) -> None:
         self.events.clear()
