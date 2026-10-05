@@ -49,3 +49,21 @@ def test_memory_empty_question_returns_empty(tmp_path: Path):
     db = AuroraDatabase(tmp_path / "memory.db")
     memory = ContextMemory(database=db, rag=FakeRAG())
     assert memory.retrieve("   ") == ""
+
+
+def test_memory_limits_text_length(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "memory.db")
+    memory = ContextMemory(database=db, rag=FakeRAG(), max_text_chars=100)
+    assert memory.memorize_interaction("x" * 200, "y" * 200)
+    with db.connect() as conn:
+        text = conn.execute("SELECT texto_interacao FROM memoria_contexto_longo").fetchone()[0]
+    assert len(text) == 100
+
+
+def test_memory_delete_all(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "memory.db")
+    memory = ContextMemory(database=db, rag=FakeRAG())
+    assert memory.memorize_interaction("Python", "ok")
+    memory.delete_all()
+    with db.connect() as conn:
+        assert conn.execute("SELECT COUNT(*) FROM memoria_contexto_longo").fetchone()[0] == 0
