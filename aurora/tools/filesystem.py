@@ -28,3 +28,12 @@ class FilesystemTool:
         if not path.is_file():
             raise FileNotFoundError(path)
         return path.read_text(encoding="utf-8")[:max_chars]
+
+
+
+def filesystem_tool_specs(tool: FilesystemTool) -> tuple:
+    from aurora.agent.tool_spec import ToolSpec
+    return (
+        ToolSpec("filesystem.list", "lista arquivos dentro da raiz autorizada", tool.list_files, category="filesystem"),
+        ToolSpec("filesystem.read", "lê texto dentro da raiz autorizada", tool.read_text, category="filesystem"),
+    )
