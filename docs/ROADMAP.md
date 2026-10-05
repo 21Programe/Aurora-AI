@@ -19,8 +19,9 @@
 - [ ] Migrar testes legados
 
 ## Qualidade
-- [ ] Cobertura de testes de integração
-- [ ] CI determinístico validado
+- [x] Cobertura inicial de testes de integração do agente e ferramentas
+- [x] Pipeline CI determinístico definida
+- [ ] Evidência de execução CI verde
 - [ ] Lint e análise estática
 - [ ] Auditoria de dependências
 - [ ] Tipagem gradual
@@ -34,6 +35,13 @@
 - [ ] Filesystem restrito quando aplicável
 - [ ] Modelo de ameaça formal
 - [ ] Testes específicos de segurança
+
+## Produto e impacto
+- [x] Posicionamento de produto
+- [x] Estratégia de impacto funcional no Brasil
+- [x] Indicadores de impacto definidos
+- [ ] Piloto real com métricas
+- [ ] Evidência de redução de tempo/custo
 
 ## Portfólio profissional
 - [ ] Screenshot real da interface
