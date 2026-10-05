@@ -134,12 +134,7 @@ def salvar_interacao(usuario, aurora, orchestrator=None):
 def obter_historico_para_ia(limite=12):
     historico_formatado = [{"role": "system", "content": INSTRUCAO_SISTEMA}]
     try:
-        with AuroraDatabase().connect() as conn:
-            linhas = conn.execute(
-                "SELECT mensagem_usuario, resposta_aurora "
-                "FROM historico ORDER BY id_interacao DESC LIMIT ?",
-                (limite,),
-            ).fetchall()
+        linhas = AuroraDatabase().fetch_history(limite)
 
         for linha in reversed(linhas):
             historico_formatado.append({"role": "user", "content": str(linha[0])})
@@ -340,10 +335,7 @@ class AuroraGUI(ctk.CTk):
             tree.heading(col, text=txt)
 
         try:
-            with AuroraDatabase().connect() as conn:
-                rows = conn.execute(
-                    "SELECT * FROM relatorios_vuln ORDER BY id_relatorio DESC"
-                ).fetchall()
+            rows = AuroraDatabase().fetch_vulnerability_reports()
             for row in rows:
                 tree.insert("", "end", values=row)
         except Exception:
