@@ -24,7 +24,7 @@ def _redact(value: Any) -> Any:
     if isinstance(value, str):
         result = value
         for pattern in SECRET_PATTERNS:
-            result = pattern.sub(lambda match: match.group(0).split(":")[0] + ": [REDACTED]", result)
+            result = pattern.sub(lambda match: match.group(0).split(":", 1)[0].split("=", 1)[0] + ": [REDACTED]", result)
         return result
     if isinstance(value, dict):
         return {str(key): _redact(item) for key, item in value.items()}
