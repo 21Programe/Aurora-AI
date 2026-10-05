@@ -7,6 +7,8 @@ O Aurora IA combina inferência LLM local, RAG, memória contextual, persistênc
 - aurora/config.py: configuração e caminhos portáveis.
 - aurora/database.py: fronteira de persistência SQLite.
 - aurora/llm.py: carregamento lazy e inferência GGUF.
+- aurora/ai_service.py: serviço de aplicação que encapsula a inferência.
+- aurora/services.py: serviços de aplicação para persistência e histórico.
 - aurora/rag.py: ingestão, embeddings e recuperação semântica.
 - aurora/memory.py: memória contextual de longo prazo.
 - aurora/sentinel.py: observabilidade de CPU, RAM e GPU.
@@ -16,9 +18,10 @@ O Aurora IA combina inferência LLM local, RAG, memória contextual, persistênc
 1. A interface recebe o comando.
 2. Histórico, RAG e memória recuperam contexto.
 3. O pacote de mensagens é montado.
-4. LocalLLM executa a inferência.
+4. AuroraAIService delega a inferência ao LocalLLM.
 5. A resposta é exibida.
-6. Histórico e memória podem ser persistidos.
+6. AuroraPersistenceService coordena histórico e memória.
+7. Histórico e memória podem ser persistidos de forma assíncrona quando necessário.
 
 ## Princípios de engenharia
 - separação de responsabilidades;
