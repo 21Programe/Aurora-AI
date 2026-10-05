@@ -24,9 +24,17 @@ Aurora-AI/
 │   ├── __init__.py
 │   ├── config.py       # Configuração centralizada
 │   ├── logger.py       # Logging com rotação
-│   └── sentinel.py     # Monitoramento de recursos
+│   ├── sentinel.py     # Monitoramento de recursos
+│   ├── database.py     # Persistência SQLite
+│   ├── llm.py          # Inferência GGUF com carregamento lazy
+│   ├── rag.py          # Ingestão e recuperação RAG
+│   └── memory.py       # Memória contextual
 ├── tests/
 │   ├── test_config.py
+│   ├── test_database.py
+│   ├── test_llm.py
+│   ├── test_memory.py
+│   ├── test_rag.py
 │   └── test_sentinel.py
 ├── .github/workflows/
 │   └── tests.yml       # CI básico
@@ -101,11 +109,11 @@ pytest -q
 ```
 
 ## Execução
-A arquitetura atual prevê a inicialização da interface através de:
+A aplicação legada ainda é inicializada diretamente por:
 ```bash
-python -m aurora.gui.app
+python aurora.py
 ```
-A migração da aplicação legada para essa estrutura modular ainda está em andamento.
+A migração da interface e do fluxo principal para a estrutura modular ainda está em andamento.
 
 ## Segurança
 Este projeto é destinado a laboratórios próprios, ambientes de teste e sistemas para os quais o usuário possui autorização.
@@ -129,7 +137,7 @@ Boas práticas adotadas:
 - [x] Logging centralizado
 - [x] `.gitignore` reforçado
 - [x] Testes iniciais
-- [x] CI básico
+- [ ] CI básico — pipeline criado, execução atual ainda em investigação
 
 ### Fase 2 — Arquitetura
 - [ ] Separar o núcleo legado em módulos
