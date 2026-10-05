@@ -109,6 +109,52 @@ class AuroraDatabase:
             )
             return cursor.rowcount
 
+    def export_user_data(self) -> dict[str, list[dict[str, object]]]:
+        """Exporta dados armazenados pelo Aurora em formato estruturado."""
+        export: dict[str, list[dict[str, object]]] = {
+            "historico": [],
+            "memoria_contexto_longo": [],
+            "base_conhecimento_rag": [],
+        }
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT id_interacao, mensagem_usuario, resposta_aurora, data_hora "
+                "FROM historico ORDER BY id_interacao"
+            ).fetchall()
+            export["historico"] = [
+                {
+                    "id": row[0],
+                    "mensagem_usuario": row[1],
+                    "resposta_aurora": row[2],
+                    "data_hora": row[3],
+                }
+                for row in rows
+            ]
+            rows = conn.execute(
+                "SELECT id_memoria, texto_interacao, data_hora "
+                "FROM memoria_contexto_longo ORDER BY id_memoria"
+            ).fetchall()
+            export["memoria_contexto_longo"] = [
+                {"id": row[0], "texto_interacao": row[1], "data_hora": row[2]}
+                for row in rows
+            ]
+            rows = conn.execute(
+                "SELECT id_chunk, origem, conteudo_texto, source_hash, chunk_index, data_hora "
+                "FROM base_conhecimento_rag ORDER BY id_chunk"
+            ).fetchall()
+            export["base_conhecimento_rag"] = [
+                {
+                    "id": row[0],
+                    "origem": row[1],
+                    "conteudo_texto": row[2],
+                    "source_hash": row[3],
+                    "chunk_index": row[4],
+                    "data_hora": row[5],
+                }
+                for row in rows
+            ]
+        return export
+
     def fetch_history(self, limit: int = 12) -> list[tuple]:
         """Retorna o histórico recente para montagem do contexto da IA."""
         if limit < 1:
