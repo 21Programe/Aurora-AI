@@ -75,6 +75,25 @@ class AuroraDatabase:
             for table in ("historico", "base_conhecimento_rag", "memoria_contexto_longo"):
                 conn.execute(f"DELETE FROM {table}")
 
+    def fetch_history(self, limit: int = 12) -> list[tuple]:
+        """Retorna o histórico recente para montagem do contexto da IA."""
+        if limit < 1:
+            raise ValueError("limit deve ser >= 1")
+        with self.connect() as conn:
+            return conn.execute(
+                "SELECT mensagem_usuario, resposta_aurora "
+                "FROM historico ORDER BY id_interacao DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+
+    def fetch_vulnerability_reports(self) -> list[tuple]:
+        """Retorna relatórios de vulnerabilidade para a interface."""
+        with self.connect() as conn:
+            return conn.execute(
+                "SELECT id_relatorio, alvo, tipo_vulnerabilidade, descricao, data_hora "
+                "FROM relatorios_vuln ORDER BY id_relatorio DESC"
+            ).fetchall()
+
     def insert(self, table: str, columns: Iterable[str], values: Iterable[object]) -> None:
         """Insere dados após validar tabela, colunas e quantidade de valores."""
         if table not in self.TABLES:
