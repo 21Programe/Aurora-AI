@@ -170,6 +170,21 @@ class Settings:
         
         if not (0 < cls.SANDBOX_TIMEOUT <= 60):
             errors.append(f"SANDBOX_TIMEOUT deve estar entre 1-60s: {cls.SANDBOX_TIMEOUT}")
+
+        if cls.LLM_CONTEXT < 256:
+            errors.append(f"LLM_CONTEXT deve ser >= 256: {cls.LLM_CONTEXT}")
+        if cls.LLM_BATCH_SIZE < 1:
+            errors.append(f"LLM_BATCH_SIZE deve ser positivo: {cls.LLM_BATCH_SIZE}")
+        if cls.LLM_MAX_TOKENS < 1:
+            errors.append(f"LLM_MAX_TOKENS deve ser positivo: {cls.LLM_MAX_TOKENS}")
+        if not (0 <= cls.LLM_TEMPERATURE <= 2):
+            errors.append(f"LLM_TEMPERATURE deve estar entre 0-2: {cls.LLM_TEMPERATURE}")
+        if cls.RAG_TOP_K < 1:
+            errors.append(f"RAG_TOP_K deve ser >= 1: {cls.RAG_TOP_K}")
+        if cls.RAG_CHUNK_SIZE < 100:
+            errors.append(f"RAG_CHUNK_SIZE deve ser >= 100: {cls.RAG_CHUNK_SIZE}")
+        if cls.MONITOR_INTERVAL < 1:
+            errors.append(f"MONITOR_INTERVAL deve ser >= 1: {cls.MONITOR_INTERVAL}")
         
         if errors:
             raise ValueError("\n".join(errors))
