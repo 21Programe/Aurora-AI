@@ -90,7 +90,7 @@ def test_agent_run_cycle_injects_context():
 
     agent = AuroraAgent(FakeAI(), Context())
     result = agent.run_cycle("objetivo", [{"role": "user", "content": "oi"}])
-    assert result == "fake response"
+    assert result == "ok"
     assert agent.state.objective == "objetivo"
 
 
