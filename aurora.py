@@ -72,20 +72,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 import numpy as np
 
-try:
-    import fitz
-    import faiss
-    from sentence_transformers import SentenceTransformer
-except ImportError:
-    print("Aviso Crítico: Instale as bibliotecas via 'pip install pymupdf faiss-cpu sentence-transformers'.")
-
-print("[SENTINELA] Boot do Motor Vetorial Semântico (Multilíngue)...")
-try:
-    encoder_rag = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-except Exception as e:
-    print(f"[SENTINELA] Falha ao carregar encoder vetorial: {e}")
-    encoder_rag = None
-    
 INSTRUCAO_SISTEMA = """
 [IDENTIDADE]: Aurora (J.A.R.V.I.S.). Lealdade: Diego (21Programe).
 [TOM]: Britânico, técnico, direto. Use "Senhor".
