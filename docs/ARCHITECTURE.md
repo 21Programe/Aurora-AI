@@ -40,3 +40,16 @@ A arquitetura está migrando de um monólito para módulos especializados. Novas
 O agente é uma camada de orquestração sobre os serviços existentes. Ferramentas não possuem autorização implícita: elas são registradas no ToolRouter e precisam ser explicitamente autorizadas por uma ToolPolicy antes da execução.
 
 Isso permite adicionar visão, áudio, web, arquivos e terminal sem transformar o agente em um processo com permissões irrestritas.
+
+## Ciclo do agente
+
+O runtime segue uma separação explícita entre intenção e ação:
+
+1. **State** representa o estado operacional.
+2. **Planner** produz uma intenção estruturada sem executar ferramentas.
+3. **Policy** decide se uma ferramenta está autorizada.
+4. **ToolRouter** localiza a ferramenta registrada.
+5. **AuditLog** registra sucesso ou falha da execução.
+6. O resultado retorna ao agente para compor a próxima etapa.
+
+Essa separação permite evoluir para visão, áudio, fala e acesso web sem acoplar percepção ou execução ao modelo de linguagem.
