@@ -36,6 +36,11 @@ class AuroraAgent:
         self.tools[name] = tool
         self.tool_router.register(name, tool)
 
+    def register_registry(self, registry: ToolRegistry) -> None:
+        """Importa um catálogo aprovado sem conceder permissões."""
+        for spec in registry.all():
+            self.register_spec(spec)
+
     def register_spec(self, spec: ToolSpec) -> None:
         """Registra uma especificação no runtime e no catálogo central."""
         self.registry.register(spec)
