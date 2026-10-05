@@ -50,3 +50,14 @@ def test_privacy_tool_specs_classify_destructive_actions():
     assert specs["privacy.export"].destructive is False
     assert specs["privacy.cleanup_history"].destructive is True
     assert specs["privacy.delete_rag_source"].destructive is True
+
+
+def test_filesystem_and_web_tools_have_governance_specs(tmp_path: Path):
+    from aurora.tools.filesystem import filesystem_tool_specs
+    from aurora.tools.web import web_tool_specs
+
+    fs_specs = filesystem_tool_specs(FilesystemTool(tmp_path))
+    web_specs = web_tool_specs(WebTool(allowed_hosts=("example.com",)))
+    assert {spec.category for spec in fs_specs} == {"filesystem"}
+    assert web_specs[0].category == "web"
+    assert all(not spec.destructive for spec in fs_specs + web_specs)
