@@ -1,20 +1,37 @@
-# Ignorar as pastas de núcleo geradas pelo sistema
+# Diretórios gerados pelo runtime
 sandbox/
 memoria/
 rag/
 logs/
 aprovados/
+aurora_core/
 
-# Ignorar Modelos de IA (MUITO PESADOS PARA O GIT)
+# Modelos locais (arquivos grandes)
 *.gguf
 *.bin
 modelos/
+models/
 
-# Ignorar Bancos de Dados locais
+# Bancos de dados locais
 *.db
 *.sqlite3
 
-# Ignorar arquivos temporários e cache do Python
+# Ambientes Python e caches
+.venv/
+venv/
+env/
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Configuração local e segredos
 .env
+.env.*
+!.env.example
+
+# Arquivos temporários do sistema
+.DS_Store
+Thumbs.db
+*.log
