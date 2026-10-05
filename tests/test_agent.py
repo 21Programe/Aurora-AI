@@ -52,3 +52,22 @@ def test_agent_registers_tool_spec_and_audits_execution():
     assert agent.use_tool("echo", value="ok") == "ok"
     assert agent.audit.events[-1].tool == "echo"
     assert agent.audit.events[-1].status == "success"
+
+
+def test_agent_observe_listen_and_speak_interfaces():
+    agent = AuroraAgent(FakeAI())
+    agent.observe("imagem analisada")
+    agent.listen("comando recebido")
+    assert agent.speak("resposta") == "resposta"
+    assert agent.state.snapshot()["mode"] == "idle"
+
+
+def test_agent_rejects_empty_perception():
+    agent = AuroraAgent(FakeAI())
+    for method in (agent.observe, agent.listen, agent.speak):
+        try:
+            method("   ")
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("entrada vazia deveria ser rejeitada")
