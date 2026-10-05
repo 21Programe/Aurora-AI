@@ -31,4 +31,5 @@ class ToolPolicy:
             return False, "tool_or_category_not_authorized"
         if spec.destructive:
             return True, "authorized_destructive_requires_confirmation"
+        return True, f"authorized_risk_{spec.risk.value}"
         return True, "authorized"
