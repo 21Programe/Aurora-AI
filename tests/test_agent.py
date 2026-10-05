@@ -71,3 +71,10 @@ def test_agent_rejects_empty_perception():
             pass
         else:
             raise AssertionError("entrada vazia deveria ser rejeitada")
+
+
+def test_agent_builds_unified_context():
+    from aurora.agent.context import AgentContext
+
+    agent = AuroraAgent(FakeAI(), AgentContext())
+    assert agent.build_context("teste") == ""
