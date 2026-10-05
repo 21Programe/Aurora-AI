@@ -47,6 +47,7 @@ class SystemSentinel:
         threshold_cpu: int = 90,
         threshold_gpu_temp: int = 82,
         monitor_interval: int = 15,
+        health_callback=None,
     ):
         """
         Inicializa o sentinela.
@@ -61,6 +62,7 @@ class SystemSentinel:
         self.threshold_cpu = threshold_cpu
         self.threshold_gpu_temp = threshold_gpu_temp
         self.monitor_interval = monitor_interval
+        self.health_callback = health_callback
         self.running = True
         
         # Inicia thread de monitoramento
@@ -160,6 +162,12 @@ class SystemSentinel:
                         f"Memória de vídeo crítica."
                     )
                 
+                if self.health_callback:
+                    try:
+                        self.health_callback()
+                    except Exception:
+                        logger.exception("Falha no callback de saúde do Sentinel.")
+
                 # 4. Log de saúde (debug)
                 if logger.level == 10:  # DEBUG
                     logger.debug(
