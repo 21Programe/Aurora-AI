@@ -81,6 +81,8 @@ class Settings:
     RAG_ENCODER_MODEL: str = os.getenv("RAG_ENCODER_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
     RAG_TOP_K: int = int(os.getenv("RAG_TOP_K", "3"))
     RAG_CHUNK_SIZE: int = int(os.getenv("RAG_CHUNK_SIZE", "1000"))
+    RAG_MAX_FILE_BYTES: int = int(os.getenv("RAG_MAX_FILE_BYTES", "20971520"))
+    RAG_MAX_PAGES: int = int(os.getenv("RAG_MAX_PAGES", "200"))
     # Privacidade: retenção e limite de memória contextual
     MEMORY_RETENTION_DAYS: int = int(os.getenv("MEMORY_RETENTION_DAYS", "90"))
     MEMORY_MAX_TEXT_CHARS: int = int(os.getenv("MEMORY_MAX_TEXT_CHARS", "12000"))
@@ -184,6 +186,10 @@ class Settings:
             errors.append(f"LLM_TEMPERATURE deve estar entre 0-2: {cls.LLM_TEMPERATURE}")
         if cls.RAG_TOP_K < 1:
             errors.append(f"RAG_TOP_K deve ser >= 1: {cls.RAG_TOP_K}")
+        if cls.RAG_MAX_FILE_BYTES < 1024:
+            errors.append(f"RAG_MAX_FILE_BYTES deve ser >= 1024: {cls.RAG_MAX_FILE_BYTES}")
+        if cls.RAG_MAX_PAGES < 1:
+            errors.append(f"RAG_MAX_PAGES deve ser >= 1: {cls.RAG_MAX_PAGES}")
         if cls.RAG_CHUNK_SIZE < 100:
             errors.append(f"RAG_CHUNK_SIZE deve ser >= 100: {cls.RAG_CHUNK_SIZE}")
         if cls.MEMORY_RETENTION_DAYS < 0:
