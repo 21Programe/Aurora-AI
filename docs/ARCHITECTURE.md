@@ -53,3 +53,8 @@ O runtime segue uma separação explícita entre intenção e ação:
 6. O resultado retorna ao agente para compor a próxima etapa.
 
 Essa separação permite evoluir para visão, áudio, fala e acesso web sem acoplar percepção ou execução ao modelo de linguagem.
+
+
+## Interfaces multimodais
+
+O agente define portas substituíveis para visão, entrada de voz e saída de voz. A implementação atual usa adaptadores de texto determinísticos para manter o núcleo testável e independente de hardware/provedores. Integrações reais de câmera, reconhecimento de fala e TTS podem ser adicionadas atrás dessas portas sem acoplar o runtime ao fornecedor.
