@@ -12,7 +12,6 @@ Arquitetura de Referência (C4 Model - Nível de Código):
 
 import os
 import webbrowser
-from llama_cpp import Llama
 import speech_recognition as sr
 from datetime import datetime
 import subprocess
@@ -24,9 +23,6 @@ import queue
 import customtkinter as ctk
 from tkinter import messagebox, ttk, filedialog
 import concurrent.futures
-import psutil
-import gc
-import ctypes
 import shutil
 
 # ==========================================
@@ -37,6 +33,7 @@ from aurora.logger import logger
 from aurora.database import AuroraDatabase
 from aurora.rag import RAGSubsystem
 from aurora.memory import ContextMemory
+from aurora.llm import LocalLLM
 from aurora.sentinel import SystemSentinel as ModularSystemSentinel
 
 BASE_DIR = str(settings.BASE_DIR)
@@ -79,53 +76,16 @@ INSTRUCAO_SISTEMA = """
 [ERRO]: Reportar como "Falha de Integridade".
 """
 
-llm_lock = threading.Lock()
-caminho_modelo = str(settings.LLM_MODEL_PATH)
-
-try:
-    if os.path.exists(caminho_modelo):
-        cores_fisicos = psutil.cpu_count(logical=False) or 4
-        cerebro_llm = Llama(
-            model_path=caminho_modelo,
-            n_gpu_layers=settings.LLM_GPU_LAYERS,
-            n_threads=cores_fisicos,
-            n_ctx=settings.LLM_CONTEXT,
-            n_batch=settings.LLM_BATCH_SIZE,
-            embedding=True,
-            chat_format="llama-3", # <--- O ESCUDO ANTI-PAPAGAIO
-            verbose=False,
-        )
-        modelo_carregado = True
-        logger.info(f"[LLM CORE] Matriz carregada. Threads físicas: {cores_fisicos}. Contexto: {settings.LLM_CONTEXT}.")
-    else:
-        cerebro_llm = None
-        modelo_carregado = False
-        logger.warning(f"Artefato GGUF ausente: {caminho_modelo}")
-except Exception as erro_de_ligacao:
-    cerebro_llm = None
-    modelo_carregado = False
-    logger.exception(f"Erro na inicialização de kernel: {erro_de_ligacao}")
-
+llm_engine = LocalLLM(model_path=str(settings.LLM_MODEL_PATH))
+cerebro_llm = llm_engine
+modelo_carregado = False
 
 def consultar_ia_local(mensagens):
-    if not modelo_carregado:
-        return "Erro Sistêmico Operacional."
-    with llm_lock:
-        try:
-            # O Escudo Anti-Loop ativado com parâmetros puros
-            resposta = cerebro_llm.create_chat_completion(
-                messages=mensagens, 
-                stream=False,
-                temperature=settings.LLM_TEMPERATURE,
-                frequency_penalty=settings.LLM_FREQUENCY_PENALTY,
-                presence_penalty=settings.LLM_PRESENCE_PENALTY,
-                max_tokens=settings.LLM_MAX_TOKENS
-            )
-            escolhas = resposta.get("choices", [])
-            return escolhas[0].get("message", {}).get("content", "").strip() if escolhas else ""
-        except Exception as e:
-            return f"Erro Crítico C++: {e}"
-
+    """Executa inferência através do serviço LLM modular."""
+    global modelo_carregado
+    resposta = llm_engine.chat(mensagens)
+    modelo_carregado = llm_engine.loaded
+    return resposta
 
 # ==========================================
 # 0.5 ORQUESTRADOR TÁTICO & SENTINELA (AUTO-CURA)
