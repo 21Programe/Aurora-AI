@@ -40,3 +40,13 @@ def test_web_tool_rejects_invalid_max_chars():
     tool = WebTool(allowed_hosts=("example.com",))
     with pytest.raises(ValueError):
         tool.fetch_text("https://example.com/", max_chars=0)
+
+
+def test_privacy_tool_specs_classify_destructive_actions():
+    from aurora.tools.privacy import PrivacyTool, privacy_tool_specs
+
+    specs = {spec.name: spec for spec in privacy_tool_specs(PrivacyTool())}
+    assert specs["privacy.export"].category == "privacy"
+    assert specs["privacy.export"].destructive is False
+    assert specs["privacy.cleanup_history"].destructive is True
+    assert specs["privacy.delete_rag_source"].destructive is True
