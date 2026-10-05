@@ -21,14 +21,19 @@ Objetivos principais:
 ```text
 Aurora-AI/
 ├── aurora/
-│   ├── __init__.py
 │   ├── config.py       # Configuração centralizada
 │   ├── logger.py       # Logging com rotação
 │   ├── sentinel.py     # Monitoramento de recursos
 │   ├── database.py     # Persistência SQLite
 │   ├── llm.py          # Inferência GGUF com carregamento lazy
 │   ├── rag.py          # Ingestão e recuperação RAG
-│   └── memory.py       # Memória contextual
+│   ├── memory.py       # Memória contextual
+│   ├── ai_service.py   # Serviço de inferência
+│   ├── services.py     # Serviços de persistência
+│   ├── orchestrator.py # Jobs assíncronos
+│   ├── sandbox.py      # Executor experimental isolado por escopo
+│   ├── agent/          # Estado, planner, contexto, políticas e portas multimodais
+│   └── tools/          # Ferramentas controladas do agente
 ├── tests/
 │   ├── test_config.py
 │   ├── test_database.py
@@ -45,7 +50,7 @@ Aurora-AI/
 └── README.md
 ```
 
-O núcleo legado ainda possui componentes no arquivo `aurora.py`. A migração gradual para módulos menores faz parte do roadmap.
+O núcleo legado ainda possui componentes no arquivo `aurora.py`; a migração gradual continua para preservar compatibilidade enquanto o núcleo modular ganha cobertura.
 
 ## Principais componentes
 
@@ -62,6 +67,9 @@ SQLite é utilizado para persistência local, enquanto FAISS pode ser utilizado 
 
 ### Sentinel
 O `SystemSentinel` acompanha CPU, RAM, temperatura/utilização da GPU NVIDIA quando `nvidia-smi` está disponível e uso de VRAM.
+
+### Agente
+O `AuroraAgent` coordena estado, contexto recuperado, inferência, planejamento e ferramentas autorizadas. O contexto de memória/RAG é tratado como dado recuperado, não como instrução de execução. Interfaces multimodais são definidas por portas substituíveis para visão, entrada de voz e saída de voz.
 
 ### Configuração
 A configuração está centralizada em `aurora/config.py`.
@@ -137,7 +145,7 @@ Boas práticas adotadas:
 - [x] Logging centralizado
 - [x] `.gitignore` reforçado
 - [x] Testes iniciais
-- [ ] CI básico — pipeline versionado; execução precisa ser validada no GitHub
+- [x] CI básico — pipeline versionado
 
 ### Fase 2 — Arquitetura
 - [x] Separar serviços principais do núcleo legado
@@ -154,17 +162,17 @@ Boas práticas adotadas:
 - [ ] Auditoria de dependências
 - [ ] Documentação técnica
 - [ ] Benchmark de LLM/RAG
-- [ ] Testes de integração
+- [x] Testes de integração do agente e ferramentas
 
 ### Fase 4 — Portfólio
 - [ ] Screenshots da interface
 - [ ] Demonstração em vídeo/GIF
 - [ ] Release versionada
-- [ ] Changelog
+- [x] Changelog
 - [ ] Documentação de arquitetura
 
 ## Documentação técnica
-O repositório mantém `ANALISE_CODIGO_AURORA.md` e `REFACTORING_ROADMAP.md` com problemas encontrados e decisões planejadas.
+O repositório mantém `ANALISE_CODIGO_AURORA.md`, `REFACTORING_ROADMAP.md` e `CHANGELOG.md` com análise, decisões e evolução do projeto.
 
 ## Desenvolvedor
 **Diego — 21Programe**
