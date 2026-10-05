@@ -62,3 +62,11 @@ class WebTool:
             if total >= max_chars:
                 break
         return "".join(chunks)
+
+
+
+def web_tool_specs(tool: WebTool) -> tuple:
+    from aurora.agent.tool_spec import ToolSpec
+    return (
+        ToolSpec("web.fetch_text", "consulta texto via HTTP/HTTPS com controles de host", tool.fetch_text, category="web"),
+    )
