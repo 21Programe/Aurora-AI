@@ -27,3 +27,8 @@ def test_invalid_ram_threshold_raises():
             settings.validate()
     finally:
         settings.RAM_THRESHOLD = original
+
+
+def test_model_configuration_is_portable():
+    assert settings.LLM_MODEL_PATH.parent == settings.MODEL_DIR
+    assert settings.RAG_ENCODER_MODEL
