@@ -35,6 +35,7 @@ from aurora.memory import ContextMemory
 from aurora.llm import LocalLLM
 from aurora.sentinel import SystemSentinel as ModularSystemSentinel
 from aurora.orchestrator import RedTeamTaskOrchestrator
+from aurora.sandbox import CodeInjectionTester
 
 BASE_DIR = str(settings.BASE_DIR)
 DIRS = {
@@ -92,34 +93,6 @@ def consultar_ia_local(mensagens):
 # ==========================================
 # 0.6 SANDBOX DE TESTE DE CÓDIGO
 # ==========================================
-class CodeInjectionTester:
-    def __init__(self):
-        self.sandbox_dir = DIRS["sandbox"]
-        self.blacklist = ["os.remove", "shutil.rmtree", "powershell", "format", "shutdown", "subprocess", "sys.exit"]
-
-    def test_code(self, code_str):
-        for word in self.blacklist:
-            if word in code_str:
-                return f"❌ Execução Bloqueada (Watchdog): Assinatura restrita detectada '{word}'."
-
-        temp_file = os.path.join(self.sandbox_dir, "temp_exec.py")
-        try:
-            with open(temp_file, "w", encoding="utf-8") as f:
-                f.write(code_str)
-
-            result = subprocess.run(["python", temp_file], capture_output=True, text=True, timeout=8)
-            output = result.stdout if result.returncode == 0 else result.stderr
-            return f"✅ Saída da Sandbox:\n{output.strip()}" if output else "✅ Execução finalizada sem saída no console."
-        except subprocess.TimeoutExpired:
-            return "❌ Execução Terminada: Timeout estourado (Possível loop infinito bloqueado)."
-        except Exception as e:
-            return f"❌ Erro na Sandbox Coren: {e}"
-        finally:
-            if os.path.exists(temp_file):
-                os.remove(temp_file)
-
-
-sandbox_tester = CodeInjectionTester()
 
 # ==========================================
 # 1. BANCO DE DADOS (MEMÓRIA E RAG)
