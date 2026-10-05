@@ -9,6 +9,7 @@ O Aurora IA combina inferência LLM local, RAG, memória contextual, persistênc
 - aurora/llm.py: carregamento lazy e inferência GGUF.
 - aurora/ai_service.py: serviço de aplicação que encapsula a inferência.
 - aurora/services.py: serviços de aplicação para persistência e histórico.
+- aurora/agent/: runtime, estado, roteamento e políticas explícitas de ferramentas.
 - aurora/rag.py: ingestão, embeddings e recuperação semântica.
 - aurora/memory.py: memória contextual de longo prazo.
 - aurora/sentinel.py: observabilidade de CPU, RAM e GPU.
@@ -34,3 +35,8 @@ O Aurora IA combina inferência LLM local, RAG, memória contextual, persistênc
 
 ## Estado atual
 A arquitetura está migrando de um monólito para módulos especializados. Novas responsabilidades devem ser implementadas nos módulos apropriados, e não acumuladas no arquivo legado.
+## Runtime do agente
+
+O agente é uma camada de orquestração sobre os serviços existentes. Ferramentas não possuem autorização implícita: elas são registradas no ToolRouter e precisam ser explicitamente autorizadas por uma ToolPolicy antes da execução.
+
+Isso permite adicionar visão, áudio, web, arquivos e terminal sem transformar o agente em um processo com permissões irrestritas.
