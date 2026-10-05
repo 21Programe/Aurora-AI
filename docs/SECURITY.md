@@ -13,7 +13,7 @@ O projeto é destinado a laboratório, desenvolvimento, automação e segurança
 O sandbox atual é experimental. Blacklist de strings e timeout de subprocesso não constituem uma fronteira de segurança confiável contra código não confiável.
 
 ### Riscos conhecidos
-- bypass de blacklist;
+- o processo ainda possui as permissões do usuário executor;
 - acesso a recursos conforme as permissões do processo;
 - consumo excessivo de recursos;
 - diferenças entre Windows e Linux;
