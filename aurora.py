@@ -34,6 +34,7 @@ from aurora.services import AuroraPersistenceService
 from aurora.rag import RAGSubsystem
 from aurora.memory import ContextMemory
 from aurora.llm import LocalLLM
+from aurora.ai_service import AuroraAIService
 from aurora.sentinel import SystemSentinel as ModularSystemSentinel
 from aurora.orchestrator import RedTeamTaskOrchestrator
 from aurora.sandbox import CodeInjectionTester
@@ -78,14 +79,15 @@ INSTRUCAO_SISTEMA = """
 """
 
 llm_engine = LocalLLM(model_path=str(settings.LLM_MODEL_PATH))
+ai_service = AuroraAIService(llm_engine)
 cerebro_llm = llm_engine
 modelo_carregado = False
 
 def consultar_ia_local(mensagens):
-    """Executa inferência através do serviço LLM modular."""
+    """Compatibilidade com a API legada, delegando ao serviço de IA."""
     global modelo_carregado
-    resposta = llm_engine.chat(mensagens)
-    modelo_carregado = llm_engine.loaded
+    resposta = ai_service.chat(mensagens)
+    modelo_carregado = ai_service.model_loaded
     return resposta
 
 # ==========================================
