@@ -30,6 +30,7 @@ import shutil
 from aurora.config import settings
 from aurora.logger import logger
 from aurora.database import AuroraDatabase
+from aurora.services import AuroraPersistenceService
 from aurora.rag import RAGSubsystem
 from aurora.memory import ContextMemory
 from aurora.llm import LocalLLM
@@ -104,56 +105,23 @@ def init_db():
 
 def salvar_interacao(usuario, aurora, orchestrator=None):
     try:
-        database = AuroraDatabase()
-        database.initialize()
-        database.insert(
-            "historico",
-            ("mensagem_usuario", "resposta_aurora"),
-            (usuario, aurora),
-        )
-
-        if orchestrator:
-            orchestrator.submit_job(
-                "Index_Contexto_Longo",
-                gerenciador_memoria_longa.memorizar_interacao,
-                usuario,
-                aurora,
-            )
-        else:
-            threading.Thread(
-                target=gerenciador_memoria_longa.memorizar_interacao,
-                args=(usuario, aurora),
-                daemon=True,
-            ).start()
-        return True
+        return persistence_service.save_interaction(usuario, aurora, orchestrator)
     except Exception:
         logger.exception("Falha ao salvar histórico.")
         return False
 
 
 def obter_historico_para_ia(limite=12):
-    historico_formatado = [{"role": "system", "content": INSTRUCAO_SISTEMA}]
     try:
-        linhas = AuroraDatabase().fetch_history(limite)
-
-        for linha in reversed(linhas):
-            historico_formatado.append({"role": "user", "content": str(linha[0])})
-            historico_formatado.append({"role": "assistant", "content": str(linha[1])})
+        return persistence_service.build_history_context(INSTRUCAO_SISTEMA, limite)
     except Exception:
         logger.exception("Falha ao recuperar histórico.")
-    return historico_formatado
+        return [{"role": "system", "content": INSTRUCAO_SISTEMA}]
 
 
 def salvar_relatorio_db(alvo, tipo, descricao):
     try:
-        database = AuroraDatabase()
-        database.initialize()
-        database.insert(
-            "relatorios_vuln",
-            ("alvo", "tipo_vulnerabilidade", "descricao"),
-            (alvo, tipo, descricao),
-        )
-        return True
+        return persistence_service.save_vulnerability_report(alvo, tipo, descricao)
     except Exception:
         logger.exception("Falha ao salvar relatório de vulnerabilidade.")
         return False
@@ -170,6 +138,10 @@ def salvar_relatorio_db(alvo, tipo, descricao):
 init_db()
 gerenciador_rag = RAGSubsystem()
 gerenciador_memoria_longa = ContextMemory(database=gerenciador_rag.database, rag=gerenciador_rag)
+persistence_service = AuroraPersistenceService(
+    database=gerenciador_rag.database,
+    memory=gerenciador_memoria_longa,
+)
 
 # ==========================================
 # 3. INTERFACE GRÁFICA & LÓGICA INTEGRADA
