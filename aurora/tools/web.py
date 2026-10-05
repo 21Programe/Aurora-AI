@@ -66,7 +66,7 @@ class WebTool:
 
 
 def web_tool_specs(tool: WebTool) -> tuple:
-    from aurora.agent.tool_spec import ToolSpec
+    from aurora.agent.tool_spec import ToolSpec, ToolRisk
     return (
-        ToolSpec("web.fetch_text", "consulta texto via HTTP/HTTPS com controles de host", tool.fetch_text, category="web"),
+        ToolSpec("web.fetch_text", "consulta texto via HTTP/HTTPS com controles de host", tool.fetch_text, category="web", risk=ToolRisk.MEDIUM),
     )
