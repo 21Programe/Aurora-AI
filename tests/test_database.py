@@ -109,3 +109,30 @@ def test_database_history_retention_rejects_negative_days(tmp_path: Path):
         pass
     else:
         raise AssertionError("retenção negativa deveria ser rejeitada")
+
+
+def test_database_exports_user_data_without_vectors(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "test.db")
+    db.initialize()
+    db.insert(
+        "historico",
+        ("mensagem_usuario", "resposta_aurora"),
+        ("oi", "olá"),
+    )
+    db.insert(
+        "memoria_contexto_longo",
+        ("texto_interacao", "vetor_json"),
+        ("memória", "[0.1, 0.2]"),
+    )
+    db.insert(
+        "base_conhecimento_rag",
+        ("origem", "conteudo_texto", "vetor_json", "source_hash", "chunk_index"),
+        ("doc.pdf", "conteúdo", "[0.1, 0.2]", "a" * 64, 0),
+    )
+
+    exported = db.export_user_data()
+    assert exported["historico"][0]["mensagem_usuario"] == "oi"
+    assert exported["memoria_contexto_longo"][0]["texto_interacao"] == "memória"
+    assert exported["base_conhecimento_rag"][0]["source_hash"] == "a" * 64
+    assert "vetor_json" not in exported["memoria_contexto_longo"][0]
+    assert "vetor_json" not in exported["base_conhecimento_rag"][0]
