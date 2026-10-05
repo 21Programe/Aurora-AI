@@ -49,3 +49,33 @@ def test_database_rejects_invalid_insert_shape(tmp_path: Path):
         pass
     else:
         raise AssertionError("Coluna inválida deveria ser rejeitada")
+
+
+def test_database_inserts_valid_row(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "test.db")
+    db.initialize()
+
+    db.insert(
+        "historico",
+        ("mensagem_usuario", "resposta_aurora"),
+        ("teste", "resposta"),
+    )
+
+    with db.connect() as conn:
+        row = conn.execute(
+            "SELECT mensagem_usuario, resposta_aurora FROM historico"
+        ).fetchone()
+
+    assert row == ("teste", "resposta")
+
+
+def test_database_rejects_empty_columns(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "test.db")
+    db.initialize()
+
+    try:
+        db.insert("historico", (), ())
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Inserção sem colunas deveria ser rejeitada")
