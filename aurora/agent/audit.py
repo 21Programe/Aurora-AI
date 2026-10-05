@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
+import re
 
 
 @dataclass(frozen=True)
@@ -11,6 +12,25 @@ class AuditEvent:
     status: str
     timestamp: str
     metadata: dict[str, Any]
+
+
+SECRET_PATTERNS = (
+    re.compile(r"(?i)(api[_-]?key|token|password|secret)\\s*[:=]\\s*[^\\s,;]+"),
+    re.compile(r"(?i)bearer\\s+[A-Za-z0-9._~+/=-]+"),
+)
+
+
+def _redact(value: Any) -> Any:
+    if isinstance(value, str):
+        result = value
+        for pattern in SECRET_PATTERNS:
+            result = pattern.sub(lambda match: match.group(0).split(":")[0] + ": [REDACTED]", result)
+        return result
+    if isinstance(value, dict):
+        return {str(key): _redact(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_redact(item) for item in value]
+    return value
 
 
 class AgentAuditLog:
@@ -28,7 +48,7 @@ class AgentAuditLog:
             tool,
             status,
             datetime.now(timezone.utc).isoformat(),
-            dict(metadata),
+            _redact(dict(metadata)),
         )
         self.events.append(event)
         if len(self.events) > self.max_events:
