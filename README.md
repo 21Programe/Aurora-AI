@@ -123,6 +123,10 @@ python aurora.py
 ```
 A migração da interface e do fluxo principal para a estrutura modular ainda está em andamento.
 
+## Produto e impacto
+
+A visão de produto está em `docs/PRODUCT.md` e a estratégia de impacto funcional no Brasil está em `docs/IMPACTO_BRASIL.md`. O foco é aplicar IA local para suporte técnico, capacitação, privacidade, produtividade e segurança defensiva, sempre com controle humano e métricas de resultado.
+
 ## Segurança
 Este projeto é destinado a laboratórios próprios, ambientes de teste e sistemas para os quais o usuário possui autorização.
 
@@ -172,7 +176,7 @@ Boas práticas adotadas:
 - [ ] Documentação de arquitetura
 
 ## Documentação técnica
-O repositório mantém `ANALISE_CODIGO_AURORA.md`, `REFACTORING_ROADMAP.md` e `CHANGELOG.md` com análise, decisões e evolução do projeto.
+O repositório mantém `ANALISE_CODIGO_AURORA.md`, `REFACTORING_ROADMAP.md`, `CHANGELOG.md`, `docs/PRODUCT.md` e `docs/IMPACTO_BRASIL.md` com análise, decisões, evolução e visão de produto.
 
 ## Desenvolvedor
 **Diego — 21Programe**
