@@ -34,6 +34,7 @@ import shutil
 # ==========================================
 from aurora.config import settings
 from aurora.logger import logger
+from aurora.sentinel import SystemSentinel as ModularSystemSentinel
 
 BASE_DIR = str(settings.BASE_DIR)
 DIRS = {
@@ -705,7 +706,12 @@ class AuroraGUI(ctk.CTk):
         self.fila_mensagens = queue.Queue()
         self.orchestrator = RedTeamTaskOrchestrator(self.fila_mensagens, max_workers=8)
 
-        self.sentinel = SystemSentinel(self.orchestrator)
+        self.sentinel = ModularSystemSentinel(
+            threshold_ram=settings.RAM_THRESHOLD,
+            threshold_cpu=settings.CPU_THRESHOLD,
+            threshold_gpu_temp=settings.GPU_TEMP_THRESHOLD,
+            monitor_interval=settings.MONITOR_INTERVAL,
+        )
 
         self.sidebar = ctk.CTkFrame(self, width=200, corner_radius=0)
         self.sidebar.grid(row=0, column=0, rowspan=2, sticky="nsew")
