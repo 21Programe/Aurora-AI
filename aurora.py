@@ -171,57 +171,63 @@ def init_db():
 
 def salvar_interacao(usuario, aurora, orchestrator=None):
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO historico (mensagem_usuario, resposta_aurora) VALUES (?,?)", (usuario, aurora))
-        conn.commit()
-        conn.close()
+        database = AuroraDatabase()
+        database.initialize()
+        database.insert(
+            "historico",
+            ("mensagem_usuario", "resposta_aurora"),
+            (usuario, aurora),
+        )
 
         if orchestrator:
-            orchestrator.submit_job("Index_Contexto_Longo", gerenciador_memoria_longa.memorizar_interacao, usuario, aurora)
+            orchestrator.submit_job(
+                "Index_Contexto_Longo",
+                gerenciador_memoria_longa.memorizar_interacao,
+                usuario,
+                aurora,
+            )
         else:
             threading.Thread(
                 target=gerenciador_memoria_longa.memorizar_interacao,
                 args=(usuario, aurora),
                 daemon=True,
             ).start()
-    except Exception as e:
-        print(f"Bypass em salvar histórico: {e}")
+        return True
+    except Exception:
+        logger.exception("Falha ao salvar histórico.")
+        return False
 
 
 def obter_historico_para_ia(limite=12):
     historico_formatado = [{"role": "system", "content": INSTRUCAO_SISTEMA}]
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT mensagem_usuario, resposta_aurora FROM historico ORDER BY id_interacao DESC LIMIT ?",
-            (limite,),
-        )
-        linhas = cursor.fetchall()
-        conn.close()
+        with AuroraDatabase().connect() as conn:
+            linhas = conn.execute(
+                "SELECT mensagem_usuario, resposta_aurora "
+                "FROM historico ORDER BY id_interacao DESC LIMIT ?",
+                (limite,),
+            ).fetchall()
 
-        for i in range(len(linhas)):
-            linha = linhas[len(linhas) - 1 - i]
+        for linha in reversed(linhas):
             historico_formatado.append({"role": "user", "content": str(linha[0])})
             historico_formatado.append({"role": "assistant", "content": str(linha[1])})
     except Exception:
-        pass
+        logger.exception("Falha ao recuperar histórico.")
     return historico_formatado
 
 
 def salvar_relatorio_db(alvo, tipo, descricao):
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO relatorios_vuln (alvo, tipo_vulnerabilidade, descricao) VALUES (?,?,?)",
+        database = AuroraDatabase()
+        database.initialize()
+        database.insert(
+            "relatorios_vuln",
+            ("alvo", "tipo_vulnerabilidade", "descricao"),
             (alvo, tipo, descricao),
         )
-        conn.commit()
-        conn.close()
         return True
     except Exception:
+        logger.exception("Falha ao salvar relatório de vulnerabilidade.")
         return False
 
 
