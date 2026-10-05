@@ -4,6 +4,7 @@ Mantém ingestão, embeddings e recuperação vetorial fora do arquivo legado.
 Dependências pesadas são opcionais no import para manter o projeto testável.
 """
 
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -154,6 +155,18 @@ class RAGSubsystem:
         source = Path(file_path)
         if not source.exists():
             raise FileNotFoundError(source)
+        if source.suffix.lower() != ".pdf":
+            raise ValueError("A ingestão atual aceita somente arquivos PDF.")
+
+        source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+        with self.database.connect() as conn:
+            existing = conn.execute(
+                "SELECT 1 FROM base_conhecimento_rag WHERE source_hash = ? LIMIT 1",
+                (source_hash,),
+            ).fetchone()
+        if existing:
+            logger.info("RAG: fonte já indexada, ignorando duplicata: %s", source.name)
+            return 0
 
         destination = settings.RAG_DIR / source.name
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -178,7 +191,7 @@ class RAGSubsystem:
             chunks.append(current)
 
         inserted = 0
-        for chunk in chunks:
+        for chunk_index, chunk in enumerate(chunks):
             if len(chunk) < 20:
                 continue
             vector = self.embed(chunk)
@@ -186,8 +199,8 @@ class RAGSubsystem:
                 continue
             self.database.insert(
                 "base_conhecimento_rag",
-                ("origem", "conteudo_texto", "vetor_json"),
-                (source.name, chunk, json.dumps(vector.tolist())),
+                ("origem", "conteudo_texto", "vetor_json", "source_hash", "chunk_index"),
+                (source.name, chunk, json.dumps(vector.tolist()), source_hash, chunk_index),
             )
             inserted += 1
 
