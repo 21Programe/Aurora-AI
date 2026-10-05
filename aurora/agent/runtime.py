@@ -14,11 +14,13 @@ from aurora.agent.tool_router import ToolRouter
 from aurora.agent.audit import AgentAuditLog
 from aurora.agent.planner import AgentPlanner
 from aurora.agent.tool_spec import ToolSpec
+from aurora.agent.context import AgentContext
 
 
 class AuroraAgent:
-    def __init__(self, ai_service: Optional[AuroraAIService] = None) -> None:
+    def __init__(self, ai_service: Optional[AuroraAIService] = None, context: Optional[AgentContext] = None) -> None:
         self.ai_service = ai_service or AuroraAIService()
+        self.context = context
         self.state = AgentState()
         self.tools: Dict[str, object] = {}
         self.tool_router = ToolRouter()
@@ -46,6 +48,11 @@ class AuroraAgent:
         finally:
             if self.state.mode is not AgentMode.ERROR:
                 self.state.set_mode(AgentMode.IDLE)
+
+    def build_context(self, question: str) -> str:
+        if self.context is None:
+            return ""
+        return self.context.build(question)
 
     def observe(self, observation: str) -> None:
         if not observation.strip():
