@@ -123,6 +123,14 @@ python aurora.py
 ```
 A migração da interface e do fluxo principal para a estrutura modular ainda está em andamento.
 
+## Privacidade, LGPD e governança
+
+O Aurora inclui `docs/LGPD.md` e `docs/DATA_MAP.md` como base de privacy-by-design, inventário de dados, retenção, direitos dos titulares, segurança e resposta a incidentes. A documentação é técnica e não substitui avaliação jurídica da implantação.
+
+## Artigos técnicos
+
+`docs/ARTIGOS.md` reúne artigos sobre IA local, agentes auditáveis, RAG, impacto brasileiro e engenharia de segurança.
+
 ## Produto e impacto
 
 A visão de produto está em `docs/PRODUCT.md` e a estratégia de impacto funcional no Brasil está em `docs/IMPACTO_BRASIL.md`. O foco é aplicar IA local para suporte técnico, capacitação, privacidade, produtividade e segurança defensiva, sempre com controle humano e métricas de resultado.
