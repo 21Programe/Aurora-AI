@@ -11,6 +11,8 @@ from aurora.ai_service import AuroraAIService
 from aurora.agent.state import AgentState, AgentMode
 from aurora.agent.permissions import ToolPolicy
 from aurora.agent.tool_router import ToolRouter
+from aurora.agent.audit import AgentAuditLog
+from aurora.agent.planner import AgentPlanner
 
 
 class AuroraAgent:
@@ -20,6 +22,8 @@ class AuroraAgent:
         self.tools: Dict[str, object] = {}
         self.tool_router = ToolRouter()
         self.policy = ToolPolicy()
+        self.audit = AgentAuditLog()
+        self.planner = AgentPlanner()
 
     def register_tool(self, name: str, tool: object) -> None:
         if not name or not name.strip():
@@ -40,7 +44,12 @@ class AuroraAgent:
         self.state.set_mode(AgentMode.USING_TOOL)
         try:
             self.policy.require(name)
-            return self.tool_router.execute(name, **kwargs)
+            result = self.tool_router.execute(name, **kwargs)
+            self.audit.record("execute", name, "success")
+            return result
+        except Exception as exc:
+            self.audit.record("execute", name, "failed", error=type(exc).__name__)
+            raise
         finally:
             self.state.set_mode(AgentMode.IDLE)
 
