@@ -137,7 +137,7 @@ Boas práticas adotadas:
 - [x] Logging centralizado
 - [x] `.gitignore` reforçado
 - [x] Testes iniciais
-- [x] CI básico — pipeline versionado e executando testes em pull requests/pushes
+- [ ] CI básico — pipeline versionado; execução precisa ser validada no GitHub
 
 ### Fase 2 — Arquitetura
 - [x] Separar serviços principais do núcleo legado
