@@ -78,3 +78,16 @@ def test_agent_builds_unified_context():
 
     agent = AuroraAgent(FakeAI(), AgentContext())
     assert agent.build_context("teste") == ""
+
+
+def test_agent_run_cycle_injects_context():
+    from aurora.agent.context import AgentContext
+
+    class Context:
+        def build(self, question):
+            return "contexto recuperado"
+
+    agent = AuroraAgent(FakeAI(), Context())
+    result = agent.run_cycle("objetivo", [{"role": "user", "content": "oi"}])
+    assert result == "fake response"
+    assert agent.state.objective == "objetivo"
