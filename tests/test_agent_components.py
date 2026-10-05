@@ -14,3 +14,18 @@ def test_planner_only_creates_intent():
     plan = AgentPlanner().plan("pesquisar", "consultar", "web", "fonte externa")
     assert plan.tool == "web"
     assert plan.reason == "fonte externa"
+
+
+def test_audit_log_is_bounded():
+    audit = AgentAuditLog(max_events=2)
+    for index in range(4):
+        audit.record("execute", "tool", "success", index=index)
+    assert len(audit.events) == 2
+    assert audit.events[0].metadata["index"] == 2
+
+
+def test_audit_log_clear():
+    audit = AgentAuditLog()
+    audit.record("execute", "tool", "success")
+    audit.clear()
+    assert audit.events == []
