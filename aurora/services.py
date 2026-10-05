@@ -57,3 +57,20 @@ class AuroraPersistenceService:
             (target, kind, description),
         )
         return True
+
+
+class AuroraPrivacyService:
+    """Orquestra exportação e exclusão de dados sem acoplar a interface ao SQLite."""
+
+    def __init__(self, database: Optional[AuroraDatabase] = None) -> None:
+        self.database = database or AuroraDatabase()
+        self.database.initialize()
+
+    def export_user_data(self) -> dict[str, list[dict[str, object]]]:
+        return self.database.export_user_data()
+
+    def cleanup_history(self, retention_days: int) -> int:
+        return self.database.cleanup_history(retention_days)
+
+    def delete_rag_source(self, source_hash: str) -> int:
+        return self.database.delete_rag_source(source_hash)
