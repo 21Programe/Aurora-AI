@@ -118,64 +118,6 @@ class RedTeamTaskOrchestrator:
         self.executor.shutdown(wait=False)
 
 
-class SystemSentinel:
-    def __init__(self, orchestrator, threshold_ram=85, threshold_cpu=90, threshold_gpu_temp=82):
-        self.orchestrator = orchestrator
-        self.threshold_ram = threshold_ram
-        self.threshold_cpu = threshold_cpu
-        self.threshold_gpu_temp = threshold_gpu_temp # Limite seguro para a RTX 2060
-        threading.Thread(target=self.monitor_loop, daemon=True).start()
-
-    def obter_dados_gpu(self):
-        try:
-            # Usa o comando nativo da NVIDIA para ler os sensores invisivelmente
-            flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
-            res = subprocess.check_output(
-                ['nvidia-smi', '--query-gpu=utilization.gpu,temperature.gpu,memory.used,memory.total', '--format=csv,noheader,nounits'],
-                encoding='utf-8',
-                creationflags=flags
-            )
-            util, temp, mem_used, mem_total = map(float, res.strip().split(', '))
-            vram_percent = (mem_used / mem_total) * 100
-            return util, temp, vram_percent
-        except Exception:
-            return 0, 0, 0
-
-    def monitor_loop(self):
-        # Inicia o leitor de CPU (a primeira leitura sempre dá 0, então acionamos antes do loop)
-        psutil.cpu_percent(interval=None)
-        
-        while True:
-            time.sleep(15) # O Watchdog faz a ronda a cada 15 segundos
-            
-            # 1. SENTINELA DA RAM
-            ram_percent = psutil.virtual_memory().percent
-            if ram_percent > self.threshold_ram:
-                print(f"[SENTINELA] ⚠️ Alerta RAM ({ram_percent}%). Iniciando expurgo ativo...")
-                gc.collect()
-                if os.name == "nt":
-                    try:
-                        ctypes.windll.psapi.EmptyWorkingSet(ctypes.windll.kernel32.GetCurrentProcess())
-                    except Exception:
-                        pass
-
-            # 2. SENTINELA DA CPU
-            cpu_percent = psutil.cpu_percent(interval=None)
-            if cpu_percent > self.threshold_cpu:
-                print(f"[SENTINELA] ⚠️ Alerta CPU ({cpu_percent}%). Processador sob carga extrema.")
-
-            # 3. SENTINELA DA GPU (Sua RTX 2060)
-            gpu_util, gpu_temp, gpu_vram = self.obter_dados_gpu()
-            if gpu_temp > self.threshold_gpu_temp:
-                print(f"[SENTINELA] 🔥 ALERTA TÉRMICO GPU: {gpu_temp}°C! Verifique o fluxo de ar no gabinete.")
-            if gpu_vram > 95:
-                print(f"[SENTINELA] ⚠️ ALERTA VRAM: Memória de Vídeo quase cheia ({gpu_vram:.1f}%).")
-
-            # Limpeza de tarefas fantasmas (Watchdog Padrão)
-            failed_jobs = [jid for jid, info in self.orchestrator.active_jobs.items() if info["status"] == "FAILED"]
-            for jid in failed_jobs:
-                del self.orchestrator.active_jobs[jid]
-
 
 # ==========================================
 # 0.6 SANDBOX DE TESTE DE CÓDIGO
@@ -308,6 +250,7 @@ class AuroraGUI(ctk.CTk):
             threshold_cpu=settings.CPU_THRESHOLD,
             threshold_gpu_temp=settings.GPU_TEMP_THRESHOLD,
             monitor_interval=settings.MONITOR_INTERVAL,
+            health_callback=self.orchestrator.cleanup_failed_jobs,
         )
 
         self.sidebar = ctk.CTkFrame(self, width=200, corner_radius=0)
