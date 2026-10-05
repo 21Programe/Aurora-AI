@@ -34,6 +34,7 @@ import shutil
 # ==========================================
 from aurora.config import settings
 from aurora.logger import logger
+from aurora.database import AuroraDatabase
 from aurora.sentinel import SystemSentinel as ModularSystemSentinel
 
 BASE_DIR = str(settings.BASE_DIR)
@@ -264,44 +265,8 @@ sandbox_tester = CodeInjectionTester()
 # 1. BANCO DE DADOS (MEMÓRIA E RAG)
 # ==========================================
 def init_db():
-    conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
-    cursor = conn.cursor()
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS historico (
-            id_interacao INTEGER PRIMARY KEY AUTOINCREMENT,
-            mensagem_usuario TEXT,
-            resposta_aurora TEXT,
-            data_hora DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"""
-    )
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS relatorios_vuln (
-            id_relatorio INTEGER PRIMARY KEY AUTOINCREMENT,
-            alvo TEXT,
-            tipo_vulnerabilidade TEXT,
-            descricao TEXT,
-            data_hora DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"""
-    )
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS base_conhecimento_rag (
-            id_chunk INTEGER PRIMARY KEY AUTOINCREMENT,
-            origem TEXT,
-            conteudo_texto TEXT,
-            vetor_json TEXT,
-            data_hora DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"""
-    )
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS memoria_contexto_longo (
-            id_memoria INTEGER PRIMARY KEY AUTOINCREMENT,
-            texto_interacao TEXT,
-            vetor_json TEXT,
-            data_hora DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"""
-    )
-    conn.commit()
-    conn.close()
+    """Inicializa o schema através da camada oficial de persistência."""
+    AuroraDatabase().initialize()
 
 
 def salvar_interacao(usuario, aurora, orchestrator=None):
