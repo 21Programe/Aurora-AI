@@ -39,8 +39,35 @@ class AuroraAgent:
         self.state.set_mode(AgentMode.THINKING)
         try:
             return self.ai_service.chat(messages)
+        except Exception as exc:
+            self.state.set_mode(AgentMode.ERROR)
+            self.audit.record("think", "llm", "failed", error=type(exc).__name__)
+            raise
         finally:
-            self.state.set_mode(AgentMode.IDLE)
+            if self.state.mode is not AgentMode.ERROR:
+                self.state.set_mode(AgentMode.IDLE)
+
+    def observe(self, observation: str) -> None:
+        if not observation.strip():
+            raise ValueError("observação não pode ser vazia")
+        self.state.set_mode(AgentMode.OBSERVING)
+        self.state.metadata["last_observation"] = observation[:10_000]
+        self.state.set_mode(AgentMode.IDLE)
+
+    def listen(self, transcript: str) -> None:
+        if not transcript.strip():
+            raise ValueError("transcrição não pode ser vazia")
+        self.state.set_mode(AgentMode.LISTENING)
+        self.state.metadata["last_transcript"] = transcript[:10_000]
+        self.state.set_mode(AgentMode.IDLE)
+
+    def speak(self, text: str) -> str:
+        if not text.strip():
+            raise ValueError("texto não pode ser vazio")
+        self.state.set_mode(AgentMode.SPEAKING)
+        self.state.metadata["last_speech"] = text[:10_000]
+        self.state.set_mode(AgentMode.IDLE)
+        return text
 
     def use_tool(self, name: str, **kwargs):
         self.state.set_mode(AgentMode.USING_TOOL)
