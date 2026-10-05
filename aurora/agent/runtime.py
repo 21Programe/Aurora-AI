@@ -123,11 +123,41 @@ class AuroraAgent:
         try:
             spec = getattr(self, "_tool_specs", {}).get(name)
             if spec is None:
-                self.policy.require(name)
-            elif not self.policy.allows_spec(spec):
-                raise PermissionError(f"ferramenta não autorizada: {name}")
-            if spec is not None and spec.destructive and confirmation_token != self.policy.confirmation_token:
-                raise PermissionError(f"confirmação explícita exigida para: {name}")
+                try:
+                    self.policy.require(name)
+                except PermissionError:
+                    self.audit.record("authorize", name, "denied", reason="tool_not_registered")
+                    raise
+            else:
+                allowed, reason = self.policy.decision(spec)
+                if not allowed:
+                    self.audit.record(
+                        "authorize",
+                        name,
+                        "denied",
+                        category=spec.category,
+                        destructive=spec.destructive,
+                        reason=reason,
+                    )
+                    raise PermissionError(f"ferramenta não autorizada: {name}")
+                self.audit.record(
+                    "authorize",
+                    name,
+                    "allowed",
+                    category=spec.category,
+                    destructive=spec.destructive,
+                    reason=reason,
+                )
+                if spec.destructive and confirmation_token != self.policy.confirmation_token:
+                    self.audit.record(
+                        "confirm",
+                        name,
+                        "denied",
+                        category=spec.category,
+                        destructive=True,
+                        reason="confirmation_required",
+                    )
+                    raise PermissionError(f"confirmação explícita exigida para: {name}")
             result = self.tool_router.execute(name, **kwargs)
             self.audit.record("execute", name, "success")
             return result
