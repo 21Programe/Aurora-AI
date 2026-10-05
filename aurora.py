@@ -388,10 +388,15 @@ class AuroraGUI(ctk.CTk):
         for col, txt in zip(("id", "alvo", "tipo", "descricao", "data"), ("Identificador Hex", "Alvo", "Categoria CVSS", "Análise", "Timestamp")):
             tree.heading(col, text=txt)
 
-        conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
-        for row in conn.cursor().execute("SELECT * FROM relatorios_vuln ORDER BY id_relatorio DESC").fetchall():
-            tree.insert("", "end", values=row)
-        conn.close()
+        try:
+            with AuroraDatabase().connect() as conn:
+                rows = conn.execute(
+                    "SELECT * FROM relatorios_vuln ORDER BY id_relatorio DESC"
+                ).fetchall()
+            for row in rows:
+                tree.insert("", "end", values=row)
+        except Exception:
+            logger.exception("Falha ao carregar relatórios de vulnerabilidades.")
         tree.pack(expand=True, fill="both", padx=10, pady=10)
 
     def receber_texto(self):
@@ -456,14 +461,10 @@ class AuroraGUI(ctk.CTk):
             webbrowser.open(f"https://www.google.com/search?q={comando.replace('pesquisar por', '').strip()}")
             return True
         elif "limpar memória" in comando:
-            conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
-            cursor = conn.cursor()
-            for t in ["historico", "base_conhecimento_rag", "memoria_contexto_longo"]:
-                cursor.execute(f"DELETE FROM {t}")
-            conn.commit()
-            conn.close()
-            gerenciador_rag.indice_faiss = None
-            gerenciador_memoria_longa.indice_faiss = None
+            AuroraDatabase().clear_memory()
+            gerenciador_rag.index = None
+            gerenciador_rag.mapping = {}
+            self.falar_e_logar("Memória purgada.")
             self.falar_e_logar("Memória purgada.")
             return True
         return False
