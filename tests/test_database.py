@@ -30,3 +30,22 @@ def test_database_rejects_unknown_table(tmp_path: Path):
         pass
     else:
         raise AssertionError("Tabela desconhecida deveria ser rejeitada")
+
+
+def test_database_rejects_invalid_insert_shape(tmp_path: Path):
+    db = AuroraDatabase(tmp_path / "test.db")
+    db.initialize()
+
+    try:
+        db.insert("historico", ("mensagem_usuario",), ("oi", "extra"))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Quantidade incompatível deveria ser rejeitada")
+
+    try:
+        db.insert("historico", ("mensagem-usuario",), ("oi",))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Coluna inválida deveria ser rejeitada")
