@@ -107,3 +107,19 @@ def test_agent_can_authorize_tool_category():
 
     agent.authorize_categories("privacy")
     assert agent.use_tool("privacy-export") == "ok"
+
+
+def test_agent_requires_confirmation_for_destructive_tool():
+    from aurora.agent.tool_spec import ToolSpec
+
+    agent = AuroraAgent(FakeAI())
+    agent.register_spec(ToolSpec("delete", "remove", lambda: "deleted", category="privacy", destructive=True))
+    agent.authorize_categories("privacy")
+    try:
+        agent.use_tool("delete")
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("ação destrutiva deveria exigir confirmação")
+
+    assert agent.use_tool("delete", confirmation_token=agent.confirmation_token()) == "deleted"
