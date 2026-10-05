@@ -1,7 +1,8 @@
 """Políticas explícitas de autorização para ferramentas do Aurora."""
 
 from dataclasses import dataclass, field
-from typing import FrozenSet, Mapping
+from typing import FrozenSet
+import secrets
 
 from aurora.agent.tool_spec import ToolSpec
 
@@ -10,6 +11,7 @@ from aurora.agent.tool_spec import ToolSpec
 class ToolPolicy:
     allowed_tools: FrozenSet[str] = field(default_factory=frozenset)
     allowed_categories: FrozenSet[str] = field(default_factory=frozenset)
+    confirmation_token: str = field(default_factory=lambda: secrets.token_urlsafe(24), repr=False)
 
     def allows_spec(self, spec: ToolSpec) -> bool:
         if spec.name not in self.allowed_tools and spec.category not in self.allowed_categories:
