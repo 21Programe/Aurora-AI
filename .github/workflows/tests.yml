@@ -23,4 +23,4 @@ jobs:
           pip install -r requirements-dev.txt psutil numpy
 
       - name: Run tests
-        run: pytest -q
+        run: pytest -q tests
