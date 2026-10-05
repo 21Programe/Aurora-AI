@@ -76,16 +76,28 @@ class AuroraDatabase:
                 conn.execute(f"DELETE FROM {table}")
 
     def insert(self, table: str, columns: Iterable[str], values: Iterable[object]) -> None:
-        """Insere dados após validar a tabela contra a whitelist interna."""
+        """Insere dados após validar tabela, colunas e quantidade de valores."""
         if table not in self.TABLES:
             raise ValueError(f"Tabela não permitida: {table}")
 
         column_list = tuple(columns)
+        value_list = tuple(values)
+
+        if not column_list:
+            raise ValueError("É necessário informar ao menos uma coluna.")
+        if len(column_list) != len(value_list):
+            raise ValueError("Quantidade de colunas e valores não corresponde.")
+        if any(
+            not isinstance(column, str) or not column.isidentifier()
+            for column in column_list
+        ):
+            raise ValueError("Nome de coluna inválido.")
+
         placeholders = ", ".join("?" for _ in column_list)
         names = ", ".join(column_list)
 
         with self.connect() as conn:
             conn.execute(
                 f"INSERT INTO {table} ({names}) VALUES ({placeholders})",
-                tuple(values),
+                value_list,
             )
