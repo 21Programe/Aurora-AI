@@ -28,3 +28,6 @@ A camada AuroraDatabase usa whitelist de tabelas, parâmetros SQL para valores e
 
 ## Princípio
 Segurança documentada deve corresponder ao comportamento real do código. Recursos experimentais não devem ser apresentados como isolamento completo.
+## Ferramentas do agente
+
+As ferramentas do agente seguem o princípio de menor privilégio. O filesystem opera somente dentro de uma raiz explicitamente configurada e rejeita traversal de caminho. A ferramenta web aceita somente HTTP/HTTPS e pode operar com allowlist de hosts. Nenhuma ferramenta é autorizada implicitamente pelo runtime.
