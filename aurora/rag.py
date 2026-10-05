@@ -105,6 +105,28 @@ class RAGSubsystem:
 
         self.initialized = True
 
+    def delete_source(self, source_hash: str) -> int:
+        """Exclui todos os chunks de uma fonte e remove sua cópia local."""
+        if not source_hash or len(source_hash) != 64:
+            raise ValueError("source_hash deve ser um SHA-256 hexadecimal.")
+        with self.database.connect() as conn:
+            rows = conn.execute(
+                "SELECT DISTINCT origem FROM base_conhecimento_rag WHERE source_hash = ?",
+                (source_hash,),
+            ).fetchall()
+            cursor = conn.execute(
+                "DELETE FROM base_conhecimento_rag WHERE source_hash = ?",
+                (source_hash,),
+            )
+        for (source_name,) in rows:
+            candidate = settings.RAG_DIR / Path(source_name).name
+            try:
+                candidate.unlink(missing_ok=True)
+            except OSError:
+                logger.warning("Não foi possível remover a cópia RAG: %s", candidate)
+        self.load_index()
+        return cursor.rowcount
+
     def retrieve_with_metadata(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, object]]:
         if not self.initialized:
             self.load_index()
