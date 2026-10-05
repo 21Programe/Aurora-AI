@@ -113,7 +113,11 @@ class AuroraAgent:
     def use_tool(self, name: str, **kwargs):
         self.state.set_mode(AgentMode.USING_TOOL)
         try:
-            self.policy.require(name)
+            spec = getattr(self, "_tool_specs", {}).get(name)
+            if spec is None:
+                self.policy.require(name)
+            elif not self.policy.allows_spec(spec):
+                raise PermissionError(f"ferramenta não autorizada: {name}")
             result = self.tool_router.execute(name, **kwargs)
             self.audit.record("execute", name, "success")
             return result
@@ -124,4 +128,7 @@ class AuroraAgent:
             self.state.set_mode(AgentMode.IDLE)
 
     def authorize_tools(self, *names: str) -> None:
-        self.policy = ToolPolicy(frozenset(names))
+        self.policy = ToolPolicy(allowed_tools=frozenset(names))
+
+    def authorize_categories(self, *categories: str) -> None:
+        self.policy = ToolPolicy(allowed_categories=frozenset(categories))
