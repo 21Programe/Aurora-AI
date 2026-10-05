@@ -73,6 +73,9 @@ class ContextMemory:
     def resgatar_lembrancas(self, pergunta: str, limiar_top_k: int = 3) -> str:
         return self.retrieve(pergunta, limiar_top_k)
 
+    def recuperar_contexto(self, pergunta: str, limiar_top_k: int = 3) -> str:
+        return self.retrieve(pergunta, limiar_top_k)
+
     def carregar_indice_memoria_longa(self) -> None:
-        """Mantido por compatibilidade; não constrói o índice de documentos RAG."""
+        """Mantido por compatibilidade; a memória é persistida no SQLite."""
         self.database.initialize()
