@@ -1,2 +1,4 @@
 # Ferramentas para desenvolvimento e testes
 pytest==8.3.5
+
+requests==2.32.5
