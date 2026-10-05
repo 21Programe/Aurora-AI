@@ -31,3 +31,13 @@ Segurança documentada deve corresponder ao comportamento real do código. Recur
 ## Ferramentas do agente
 
 As ferramentas do agente seguem o princípio de menor privilégio. O filesystem opera somente dentro de uma raiz explicitamente configurada e rejeita traversal de caminho. A ferramenta web aceita somente HTTP/HTTPS e pode operar com allowlist de hosts. Nenhuma ferramenta é autorizada implicitamente pelo runtime.
+
+
+### Web Tool — limites atuais
+- redirects HTTP são desabilitados;
+- sem allowlist, hosts que resolvem para endereços privados, loopback, link-local ou reservados são rejeitados;
+- respostas possuem limite de caracteres durante o streaming;
+- a proteção não elimina todos os riscos de DNS/rede e não substitui sandbox ou isolamento de rede.
+
+### Auditoria de ferramentas
+O runtime registra ferramenta, operação, status e classe do erro. Argumentos sensíveis não são registrados pelo audit log atual. A autorização continua explícita e deny-by-default.
