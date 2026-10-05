@@ -28,7 +28,7 @@ Persistência: Camada híbrida entre SQL tradicional e vetores FAISS L2.
 🚀 Como Executar
 Requisitos de Sistema: Python 3.10+, GPU NVIDIA (recomendado para aceleração de tensores).
 
-Diretório Base: O sistema opera a partir da estrutura em D:\AURORA_CORE.
+Diretório Base: O sistema deve usar o diretório raiz do próprio projeto; caminhos locais devem ser configurados por variáveis de ambiente ou caminhos relativos.
 
 Instalação:
 
