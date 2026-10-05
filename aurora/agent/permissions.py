@@ -24,3 +24,11 @@ class ToolPolicy:
     def require(self, tool_name: str) -> None:
         if not self.allows(tool_name):
             raise PermissionError(f"ferramenta não autorizada: {tool_name}")
+
+    def decision(self, spec: ToolSpec) -> tuple[bool, str]:
+        """Retorna decisão explícita e motivo para auditoria."""
+        if spec.name not in self.allowed_tools and spec.category not in self.allowed_categories:
+            return False, "tool_or_category_not_authorized"
+        if spec.destructive:
+            return True, "authorized_destructive_requires_confirmation"
+        return True, "authorized"
