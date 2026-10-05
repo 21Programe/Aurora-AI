@@ -44,6 +44,10 @@ class ContextMemory:
             return False
 
     def retrieve(self, question: str, top_k: int = 3) -> str:
+        if not question or not question.strip():
+            return ""
+        if top_k < 1:
+            raise ValueError("top_k deve ser >= 1")
         vector = self.rag.embed(question)
         if vector is None:
             return ""
