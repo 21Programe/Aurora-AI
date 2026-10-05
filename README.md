@@ -137,12 +137,14 @@ Boas práticas adotadas:
 - [x] Logging centralizado
 - [x] `.gitignore` reforçado
 - [x] Testes iniciais
-- [ ] CI básico — pipeline criado, execução atual ainda em investigação
+- [x] CI básico — pipeline versionado e executando testes em pull requests/pushes
 
 ### Fase 2 — Arquitetura
-- [ ] Separar o núcleo legado em módulos
-- [ ] Consolidar memória
-- [ ] Consolidar RAG
+- [x] Separar serviços principais do núcleo legado
+- [x] Criar runtime de agente com planejamento e autorização
+- [x] Adicionar auditoria das execuções de ferramentas
+- [x] Consolidar memória
+- [x] Consolidar RAG
 - [ ] Isolar sandbox
 - [ ] Padronizar type hints
 - [ ] Aumentar cobertura de testes
