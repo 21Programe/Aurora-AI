@@ -1,0 +1,2 @@
+# Ferramentas para desenvolvimento e testes
+pytest==8.3.5
