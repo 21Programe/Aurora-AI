@@ -114,6 +114,16 @@ class RedTeamTaskOrchestrator:
             error_msg = f"Falha catastrófica na thread {job_id} ({job_name}): {e}"
             self.message_queue.put(("⚠️ ALERTA DE SUBSISTEMA", error_msg))
 
+    def cleanup_failed_jobs(self):
+        """Remove jobs encerrados com falha do registro ativo."""
+        failed_jobs = [
+            job_id
+            for job_id, info in self.active_jobs.items()
+            if info.get("status") == "FAILED"
+        ]
+        for job_id in failed_jobs:
+            self.active_jobs.pop(job_id, None)
+
     def shutdown(self):
         self.executor.shutdown(wait=False)
 
