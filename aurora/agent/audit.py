@@ -1,8 +1,8 @@
 """Auditoria estruturada das ações do agente Aurora."""
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
-import re
 
 
 @dataclass(frozen=True)
@@ -15,8 +15,8 @@ class AuditEvent:
 
 
 SECRET_PATTERNS = (
-    re.compile(r"(?i)(api[_-]?key|token|password|secret)\\s*[:=]\\s*[^\\s,;]+"),
-    re.compile(r"(?i)bearer\\s+[A-Za-z0-9._~+/=-]+"),
+    re.compile(r"(?i)(api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]+"),
+    re.compile(r"(?i)bearer\s+[A-Za-z0-9._~+/=-]+"),
 )
 
 
